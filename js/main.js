@@ -31,12 +31,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Simple inquiry trigger handler
-  const inquiryBtn = document.getElementById('inquirySubmit');
-  if (inquiryBtn) {
-    inquiryBtn.addEventListener('click', (e) => {
+  // WhatsApp Admissions Inquiry Form Handler
+  const inquiryForm = document.getElementById('inquiryForm');
+  if (inquiryForm) {
+    inquiryForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      alert('Thank you for your interest in Aurelia Public School. Our admissions desk will be in touch shortly!');
+
+      const parentName = document.getElementById('parentName')?.value.trim() || '';
+      const childGrade = document.getElementById('childGrade')?.value.trim() || '';
+      const parentMessage = document.getElementById('parentMessage')?.value.trim() || '';
+
+      let text = 'Hello Aurelia Public School,\nI would like to inquire about admissions.';
+
+      if (parentName) {
+        text += `\n\n• Parent / Guardian: ${parentName}`;
+      }
+      if (childGrade) {
+        text += `\n• Child's Age / Proposed Grade: ${childGrade}`;
+      }
+      if (parentMessage) {
+        text += `\n• Note: ${parentMessage}`;
+      }
+
+      const whatsappUrl = `https://wa.me/919745483774?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank') || (window.location.href = whatsappUrl);
     });
   }
 });
