@@ -488,25 +488,6 @@ nav.main-nav a:hover {
   box-shadow: 0 6px 18px rgba(37, 211, 102, 0.38);
 }
 
-.inquiry-box .direct-wa-link {
-  margin-top: 22px;
-  margin-bottom: 0;
-  font-size: 0.94rem;
-  color: #d1dcd7;
-}
-
-.inquiry-box .direct-wa-link a {
-  color: var(--accent-light);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color 0.2s ease;
-}
-
-.inquiry-box .direct-wa-link a:hover {
-  color: #ffffff;
-}
-
 /* Footer */
 footer.site-footer {
   background: var(--primary-dark);
