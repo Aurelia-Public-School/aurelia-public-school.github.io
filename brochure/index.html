@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
   <title>Aurelia Public School | Brochure</title>
   <meta name="description" content="Interactive 3-Fold Brochure for Aurelia Public School, Edavannappara, Kerala.">
   <link rel="icon" type="image/png" href="../assets/favicon.png">
@@ -39,6 +40,7 @@
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
+      touch-action: none;
     }
 
     html, body {
@@ -50,6 +52,12 @@
       color: #e5e7eb;
       position: fixed;
       touch-action: none;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    a, a[href^="tel"], a[href^="mailto"] {
+      color: inherit;
+      text-decoration: none;
     }
 
     /* Interactive 3D Viewport */
@@ -81,16 +89,16 @@
       transition: none;
     }
 
-    /* Ambient Floor Contact Shadow (moves with the brochure) */
-    .floor-shadow {
+    /* Ambient Ground Shadow strictly below the bottom of the brochure */
+    .bottom-shadow {
       position: absolute;
-      top: 56%;
+      top: calc(100% + 26px);
       left: 50%;
-      width: 380px;
-      height: 520px;
-      transform: translate3d(-50%, -50%, -90px) rotateX(78deg);
-      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 45%, transparent 74%);
-      filter: blur(26px);
+      width: 310px;
+      height: 38px;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.45) 48%, transparent 76%);
+      filter: blur(14px);
       pointer-events: none;
       transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.9s ease;
     }
@@ -132,7 +140,6 @@
 
     /* =========================================================
        NON-INTERSECTING 3D HINGE GEOMETRY
-       Using exact parallel Z-offsets:
        - Center Panel sits at Z = 0px
        - Right Wing (Inner Flap) hinge at Z = +2.5px, body at -2.5px
          -> Unfolded (0deg): Z = 0px
@@ -234,17 +241,17 @@
     }
 
     .crease-from-left {
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.06) 12%, transparent 32%);
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.05) 10%, transparent 28%);
     }
 
     .crease-from-right {
-      background: linear-gradient(to left, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.06) 12%, transparent 32%);
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.05) 10%, transparent 28%);
     }
 
     .fold-depth-shade {
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.38) 100%);
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.34) 100%);
       pointer-events: none;
       z-index: 16;
       opacity: 0;
@@ -779,18 +786,63 @@
       line-height: 1.48;
       margin-bottom: 3px;
     }
+
+    /* =========================================================
+       STANDALONE FLIP BUTTON (Bottom Right)
+       ========================================================= */
+    .flip-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100;
+      background: rgba(13, 52, 39, 0.88);
+      color: var(--accent-light);
+      border: 1px solid rgba(201, 151, 62, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .flip-btn:hover {
+      background: rgba(21, 70, 54, 0.95);
+      border-color: var(--accent);
+    }
+
+    .flip-btn:active {
+      transform: scale(0.94);
+    }
+
+    .flip-btn svg {
+      color: var(--accent);
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .flip-btn.flipped svg {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 <body>
 
-  <!-- Pure 3D Scene (No UI chrome, headers, or page numbers) -->
+  <!-- Interactive 3D Scene -->
   <div class="scene-viewport" id="sceneViewport">
     
     <!-- Pan & Scale Container -->
     <div class="pan-rig" id="panRig">
 
-      <!-- Ambient Floor Shadow beneath the paper -->
-      <div class="floor-shadow" id="floorShadow"></div>
+      <!-- Ambient Ground Shadow strictly at the bottom -->
+      <div class="bottom-shadow" id="bottomShadow"></div>
 
       <!-- Gentle Floating Wobble Container -->
       <div class="wobble-rig" id="wobbleRig">
@@ -1087,22 +1139,25 @@
 
   </div> <!-- /scene-viewport -->
 
+  <!-- Standalone Flip Button at Bottom Right -->
+  <button class="flip-btn" id="flipBtn" type="button" aria-label="Flip Brochure">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 2.1l4 4-4 4"/>
+      <path d="M3 12.2v-2a4 4 0 0 1 4-4h14"/>
+      <path d="M7 21.9l-4-4 4-4"/>
+      <path d="M21 11.8v2a4 4 0 0 1-4 4H3"/>
+    </svg>
+    <span>Flip</span>
+  </button>
+
   <script>
-    // =========================================================================
-    // PHYSICAL TRI-FOLD STATE & TRANSFORM ENGINE
-    //
-    // Fold States:
-    //   0: Closed (Front Cover facing viewer; Left Wing @ +180deg, Right Wing @ -180deg)
-    //   1: First Unfold (Front Cover opens left; Left Wing @ +10deg, Right Wing @ -180deg)
-    //   2: Full Unfold (Inner Flap opens right; Left Wing @ +8deg, Right Wing @ -8deg)
-    // =========================================================================
     const PANEL_W = 310;
     const PANEL_H = 640;
 
-    let foldStep = 0;       // 0, 1, 2
-    let isFlipped = false;  // false = Front/Inside, true = Back/Outside (180deg Y flip)
+    let foldStep = 0;       // 0: Closed, 1: Half-Open, 2: Fully Open
+    let isFlipped = false;  // false: Front/Inside, true: Back/Outside
 
-    // Screen-space Pan & Zoom (so user can move the brochure anywhere to read off-screen parts)
+    // Screen-space Pan & Zoom
     let panX = 0;
     let panY = 0;
     let userZoom = 1;
@@ -1116,30 +1171,27 @@
     // DOM References
     const viewport = document.getElementById('sceneViewport');
     const panRig = document.getElementById('panRig');
-    const wobbleRig = document.getElementById('wobbleRig');
     const orbitRig = document.getElementById('orbitRig');
     const assembly = document.getElementById('brochureAssembly');
     const wingLeft = document.getElementById('wingLeft');
     const wingRight = document.getElementById('wingRight');
-    const floorShadow = document.getElementById('floorShadow');
+    const bottomShadow = document.getElementById('bottomShadow');
     const shadeFlapOutside = document.getElementById('shadeFlapOutside');
     const shadeCenterInside = document.getElementById('shadeCenterInside');
+    const flipBtn = document.getElementById('flipBtn');
 
-    // Calculate responsive base scale so the brochure is readable and fits nicely
     function computeResponsiveScale() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const heightFit = (vh * 0.84) / PANEL_H;
+      const heightFit = (vh * 0.82) / PANEL_H;
 
       if (foldStep === 0) {
         const widthFit = (vw * 0.82) / PANEL_W;
         baseFitScale = Math.min(1.05, heightFit, widthFit);
       } else if (foldStep === 1) {
-        // 2 panels wide: keep large enough to read comfortably, allow panning if needed
         const widthFit = (vw * 0.90) / (PANEL_W * 1.45);
         baseFitScale = Math.min(1.0, heightFit, widthFit);
       } else {
-        // 3 panels wide: keep readable scale and allow smooth horizontal dragging across panels
         const widthFit = (vw * 0.92) / (PANEL_W * 1.55);
         baseFitScale = Math.min(0.96, heightFit, widthFit);
       }
@@ -1161,9 +1213,7 @@
         wingLeft.style.transition = 'none';
         wingRight.style.transition = 'none';
       } else {
-        // Sequence delays so closing never collides and opening feels organic
         if (foldStep === 0 && previousStep === 2) {
-          // Closing from full spread: tuck Right Wing first, then close Left Wing over it
           wingRight.style.transition = 'transform 0.85s cubic-bezier(0.24, 1, 0.32, 1) 0s';
           wingLeft.style.transition = 'transform 0.9s cubic-bezier(0.24, 1, 0.32, 1) 0.14s';
         } else {
@@ -1173,22 +1223,15 @@
       }
 
       if (foldStep === 0) {
-        // CLOSED:
-        // Right wing folded at -180deg (Z = +5px)
-        // Left wing folded over it at +180deg (Z = +12px)
         wingLeft.style.transform = 'translateZ(6px) rotateY(180deg)';
         wingRight.style.transform = 'translateZ(2.5px) rotateY(-180deg)';
-
-        // Center of Gravity of 1-panel stack is (0, 0, -6px)
         assembly.style.transform = 'translate3d(0px, 0px, -6px)';
 
-        // Lighting & occlusion between folds
-        shadeFlapOutside.style.opacity = '0.5';
-        shadeCenterInside.style.opacity = '0.6';
-        floorShadow.style.width = '340px';
-        floorShadow.style.opacity = '0.82';
+        shadeFlapOutside.style.opacity = '0.45';
+        shadeCenterInside.style.opacity = '0.55';
+        bottomShadow.style.width = '290px';
+        bottomShadow.style.opacity = '0.85';
 
-        // Reset pan to center when closed, with slight slanted 3D pose
         panX = 0;
         panY = 0;
         rotX = 7;
@@ -1196,21 +1239,15 @@
         rotZ = -1.5;
 
       } else if (foldStep === 1) {
-        // STEP 1 UNFOLD:
-        // Left wing (Front Cover) unfolds open to the left (+12deg natural crease)
-        // Right wing (Inner Flap) remains folded over Center (-180deg)
         wingLeft.style.transform = 'translateZ(6px) rotateY(12deg)';
         wingRight.style.transform = 'translateZ(2.5px) rotateY(-180deg)';
-
-        // CoG of the 2-panel spread [-1.5W, +0.5W] is at -0.5W -> shift assembly +0.5W!
         assembly.style.transform = `translate3d(${PANEL_W * 0.5}px, 0px, -2px)`;
 
         shadeFlapOutside.style.opacity = '0';
-        shadeCenterInside.style.opacity = '0.5';
-        floorShadow.style.width = '640px';
-        floorShadow.style.opacity = '0.72';
+        shadeCenterInside.style.opacity = '0.45';
+        bottomShadow.style.width = '580px';
+        bottomShadow.style.opacity = '0.75';
 
-        // Gently level out slant for easy reading
         panX = 0;
         panY = 0;
         rotX = 4;
@@ -1218,18 +1255,14 @@
         rotZ = -0.5;
 
       } else if (foldStep === 2) {
-        // STEP 2 FULL UNFOLD:
-        // Both wings open with a subtle natural paper crease (+8deg and -8deg)
         wingLeft.style.transform = 'translateZ(6px) rotateY(8deg)';
         wingRight.style.transform = 'translateZ(2.5px) rotateY(-8deg)';
-
-        // CoG of the 3-panel spread [-1.5W, +1.5W] is at 0
         assembly.style.transform = 'translate3d(0px, 0px, 0px)';
 
         shadeFlapOutside.style.opacity = '0';
         shadeCenterInside.style.opacity = '0';
-        floorShadow.style.width = '940px';
-        floorShadow.style.opacity = '0.65';
+        bottomShadow.style.width = '880px';
+        bottomShadow.style.opacity = '0.68';
 
         panX = 0;
         panY = 0;
@@ -1249,24 +1282,41 @@
 
     function flipBrochure() {
       isFlipped = !isFlipped;
+      flipBtn.classList.toggle('flipped', isFlipped);
       applyTransforms();
     }
 
+    // Flip button click handler
+    flipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      flipBrochure();
+    });
+
+    // Prevent native browser double-tap zoom everywhere
+    document.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
+    let lastTouchEndTime = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = performance.now();
+      if (now - lastTouchEndTime <= 350) {
+        e.preventDefault();
+      }
+      lastTouchEndTime = now;
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+
     // =========================================================================
-    // UNIFIED GESTURE ENGINE:
-    // - Single Tap: Unfold / Fold progression
-    // - Double Tap: Flip 180° keeping Center of Gravity unmoved
-    // - 1-Finger Drag / Mouse Drag: Move (Pan) the brochure around on screen
-    //   with natural 3D tilt so off-screen panels can be slid right into view
-    // - 2-Finger Pinch & Twist: Zoom in/out + Rotate around Center of Gravity
+    // GESTURE ENGINE (Instant Tap to Unfold/Fold, Drag to Move, 2-Finger Pinch/Rotate)
     // =========================================================================
     const activePointers = new Map();
     let isDragging = false;
     let totalMovement = 0;
-    let lastTapTimestamp = 0;
-    let singleTapTimer = null;
 
-    // Multi-touch pinch/rotate tracking
     let initialPinchDist = 0;
     let initialPinchAngle = 0;
     let initialZoom = 1;
@@ -1287,6 +1337,7 @@
     }
 
     viewport.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('#flipBtn')) return;
       viewport.setPointerCapture(e.pointerId);
       activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
@@ -1294,12 +1345,7 @@
         isDragging = false;
         totalMovement = 0;
       } else if (activePointers.size === 2) {
-        // Initialize 2-finger pinch + rotate around Center of Gravity
         isDragging = true;
-        if (singleTapTimer) {
-          clearTimeout(singleTapTimer);
-          singleTapTimer = null;
-        }
         const m = getTwoPointerMetrics();
         initialPinchDist = m.dist;
         initialPinchAngle = m.angle;
@@ -1330,21 +1376,17 @@
           orbitRig.classList.add('dragging');
 
           if (e.shiftKey || e.buttons === 2) {
-            // Shift+Drag or Right-Click Drag rotates in 3D
             rotY += dx * 0.4;
             rotX = Math.max(-55, Math.min(55, rotX - dy * 0.4));
           } else {
-            // Move (pan) the brochure smoothly across the screen to read any panel
             panX += dx;
             panY += dy;
 
-            // Clamp pan within generous bounds based on current spread width
             const spreadHalfW = (foldStep === 0 ? PANEL_W * 0.6 : foldStep === 1 ? PANEL_W * 1.2 : PANEL_W * 1.6) * baseFitScale * userZoom;
             const spreadHalfH = PANEL_H * 0.65 * baseFitScale * userZoom;
             panX = Math.max(-spreadHalfW, Math.min(spreadHalfW, panX));
             panY = Math.max(-spreadHalfH, Math.min(spreadHalfH, panY));
 
-            // Subtle natural 3D perspective banking while moving the paper
             rotY = Math.max(-35, Math.min(35, rotY + dx * 0.06));
             rotX = Math.max(-30, Math.min(30, rotX - dy * 0.06));
           }
@@ -1356,11 +1398,9 @@
         orbitRig.classList.add('dragging');
 
         const m = getTwoPointerMetrics();
-        // 1. Pinch Zoom
         const scaleRatio = m.dist / initialPinchDist;
         userZoom = Math.max(0.55, Math.min(2.2, initialZoom * scaleRatio));
 
-        // 2. Two-finger Rotate around Center of Gravity (in-plane twist + 3D Y turn)
         let angleDelta = m.angle - initialPinchAngle;
         if (angleDelta > 180) angleDelta -= 360;
         if (angleDelta < -180) angleDelta += 360;
@@ -1380,31 +1420,11 @@
         panRig.classList.remove('dragging');
         orbitRig.classList.remove('dragging');
 
-        // Detect clean Tap vs Double-Tap (when user didn't drag)
+        // Instant single-tap unfold/fold (zero delay since double-tap is removed)
         if (!isDragging && totalMovement <= 7) {
-          const now = performance.now();
-          const delta = now - lastTapTimestamp;
-
-          if (delta > 0 && delta < 300) {
-            // Double Tap -> Flip brochure 180° around Center of Gravity
-            if (singleTapTimer) {
-              clearTimeout(singleTapTimer);
-              singleTapTimer = null;
-            }
-            flipBrochure();
-            lastTapTimestamp = 0;
-          } else {
-            // Single Tap -> Unfold / Fold progression
-            lastTapTimestamp = now;
-            singleTapTimer = setTimeout(() => {
-              advanceFold();
-              singleTapTimer = null;
-              lastTapTimestamp = 0;
-            }, 290);
-          }
+          advanceFold();
         }
       } else if (activePointers.size === 1) {
-        // Prevent jump after lifting one finger from a 2-finger gesture
         isDragging = true;
       }
     }
@@ -1413,7 +1433,6 @@
     viewport.addEventListener('pointercancel', handlePointerEnd);
     viewport.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // Mouse wheel / trackpad zoom & horizontal scroll support
     viewport.addEventListener('wheel', (e) => {
       e.preventDefault();
       if (e.ctrlKey || Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
@@ -1430,7 +1449,6 @@
       applyTransforms();
     });
 
-    // Initialize in folded wobbly state
     updateBrochureState(false, 0);
   </script>
 </body>
