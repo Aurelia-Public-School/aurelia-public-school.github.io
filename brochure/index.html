@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurelia Public School | Interactive 3-Fold Brochure</title>
+  <meta name="description" content="Interactive 6-sided, 3-fold brochure mockup for Aurelia Public School, Edavannappara, Kerala.">
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0e3528;
+      --primary-dark: #072219;
+      --primary-light: #164837;
+      --primary-surface: #0a291f;
+      --accent: #c9973e;
+      --accent-light: #f6ecdb;
+      --accent-subtle: #ebd5ad;
+      --accent-hover: #b07e29;
+      --gold-gradient: linear-gradient(135deg, #dfb76c 0%, #c9973e 50%, #9e6f22 100%);
+      --emerald-gradient: linear-gradient(145deg, #164837 0%, #0e3528 60%, #072219 100%);
+      --text-dark: #1f2937;
+      --text-muted: #52606d;
+      --bg-desk: #121816;
+      --bg-paper: #fcfaf6;
+      --border-subtle: rgba(201, 151, 62, 0.22);
+      --font-heading: 'Cinzel', serif;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-desk);
+      color: #e5e7eb;
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(201, 151, 62, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 80% 90%, rgba(14, 53, 40, 0.4) 0%, transparent 70%);
+    }
+
+    /* Top Navigation bar */
+    .app-header {
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(14, 35, 27, 0.85);
+      border-bottom: 1px solid rgba(201, 151, 62, 0.2);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-link img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .brand-title {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+      display: block;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-site {
+      color: #e5e7eb;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .btn-site:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-print {
+      background: var(--gold-gradient);
+      color: #0c2b20;
+      font-weight: 700;
+      font-size: 0.82rem;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(201, 151, 62, 0.3);
+      transition: transform 0.15s ease, filter 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-print:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    /* Controls bar */
+    .controls-banner {
+      padding: 16px 20px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-light);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(201, 151, 62, 0.4);
+    }
+
+    .fold-control-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .fold-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #d1d5db;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fold-steps {
+      display: flex;
+      gap: 6px;
+    }
+
+    .fold-step-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #d1d5db;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .fold-step-btn.active {
+      background: var(--accent);
+      color: #0e3528;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .fold-step-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    /* Main Stage */
+    .workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 48px;
+      perspective: 2500px;
+    }
+
+    .brochure-viewport {
+      width: 100%;
+      max-width: 1220px;
+      transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    /* Side Switch Indicator */
+    .side-indicator {
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      font-weight: 600;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .side-indicator span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* 3-Fold Sheet Container */
+    .tri-fold-sheet {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      background: #f7f3ea;
+      border-radius: 12px;
+      box-shadow: 
+        0 25px 60px -15px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(201, 151, 62, 0.35);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Fold crease shadows */
+    .tri-fold-sheet::before {
+      content: '';
+      position: absolute;
+      left: calc(33.333% - 1px);
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to right, rgba(0,0,0,0.18), rgba(255,255,255,0.4), rgba(0,0,0,0.12));
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .tri-fold-sheet::after {
+      content: '';
+      position: absolute;
+      left: calc(66.666% - 1px);
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to right, rgba(0,0,0,0.18), rgba(255,255,255,0.4), rgba(0,0,0,0.12));
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    /* Folding Simulation States for Outside View */
+    .outside-folded-closed .panel-left {
+      /* Flap In (Inside Flap) folds inward 175deg */
+      transform-origin: right center;
+      transform: rotateY(165deg);
+      box-shadow: -12px 0 24px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+
+    .outside-folded-closed .panel-right {
+      /* Front Cover folds over panel center */
+      transform-origin: left center;
+      transform: rotateY(-172deg);
+      box-shadow: 15px 0 30px rgba(0,0,0,0.5);
+      z-index: 15;
+    }
+
+    .outside-folded-semi .panel-left {
+      transform-origin: right center;
+      transform: rotateY(55deg);
+      box-shadow: -8px 0 20px rgba(0,0,0,0.25);
+      z-index: 10;
+    }
+
+    .outside-folded-semi .panel-right {
+      transform-origin: left center;
+      transform: rotateY(-65deg);
+      box-shadow: 8px 0 25px rgba(0,0,0,0.3);
+      z-index: 15;
+    }
+
+    /* Inside folded semi simulation */
+    .inside-folded-semi .panel-left {
+      transform-origin: right center;
+      transform: rotateY(-55deg);
+      box-shadow: 8px 0 20px rgba(0,0,0,0.25);
+      z-index: 10;
+    }
+
+    .inside-folded-semi .panel-right {
+      transform-origin: left center;
+      transform: rotateY(65deg);
+      box-shadow: -8px 0 20px rgba(0,0,0,0.25);
+      z-index: 10;
+    }
+
+    /* Individual Panels */
+    .panel {
+      min-height: 700px;
+      padding: 40px 32px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-paper);
+      color: var(--text-dark);
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.8s;
+      backface-visibility: visible;
+    }
+
+    .panel-meta-tag {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(0, 0, 0, 0.04);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* Cover Panel Theme (Deep Emerald Luxury) */
+    .panel-cover {
+      background: var(--emerald-gradient);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      padding: 50px 32px 40px;
+      position: relative;
+      overflow: hidden;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .panel-cover::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 50% 25%, rgba(201, 151, 62, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .panel-cover .cover-gold-crest {
+      width: 105px;
+      height: 105px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.4));
+      margin-bottom: 22px;
+    }
+
+    .cover-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      width: 100%;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(201, 151, 62, 0.35);
+      padding-bottom: 6px;
+      margin-bottom: 26px;
+      font-weight: 600;
+    }
+
+    .cover-title {
+      font-family: var(--font-heading);
+      font-size: 2.1rem;
+      letter-spacing: 0.06em;
+      line-height: 1.18;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .cover-title span {
+      display: block;
+      color: var(--accent);
+      font-size: 1.25rem;
+      letter-spacing: 0.18em;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .cover-tagline {
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: var(--accent-light);
+      font-size: 1.05rem;
+      margin-top: 18px;
+      position: relative;
+      padding: 0 16px;
+      line-height: 1.45;
+    }
+
+    .cover-middle {
+      z-index: 2;
+      padding: 24px 10px;
+    }
+
+    .cover-lead-text {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: #e2e8f0;
+      font-weight: 400;
+      max-width: 290px;
+      margin: 0 auto;
+    }
+
+    .cover-bottom {
+      z-index: 2;
+      width: 100%;
+      border-top: 1px solid rgba(201, 151, 62, 0.25);
+      padding-top: 20px;
+    }
+
+    .cover-shine-phrase {
+      font-family: var(--font-heading);
+      font-size: 0.88rem;
+      letter-spacing: 0.06em;
+      color: #fff;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .cover-shine-phrase strong {
+      color: var(--accent);
+    }
+
+    .cover-location {
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Back Panel Theme (Contact & Foundation) */
+    .panel-back {
+      background: #faf7f0;
+      border-left: 1px dashed rgba(201, 151, 62, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .back-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .back-header img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      margin-bottom: 12px;
+    }
+
+    .back-header h3 {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      color: var(--primary);
+      letter-spacing: 0.04em;
+    }
+
+    .back-header p {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--accent-hover);
+      margin-top: 4px;
+    }
+
+    .foundation-card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      border: 1px solid #ebd5ad;
+      box-shadow: 0 2px 8px rgba(16, 56, 43, 0.04);
+    }
+
+    .foundation-card h4 {
+      font-family: var(--font-heading);
+      font-size: 0.76rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .foundation-card h4::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--accent-subtle);
+    }
+
+    .foundation-card p {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .contact-box {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 12px;
+      padding: 22px 20px;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .contact-box h4 {
+      font-family: var(--font-heading);
+      color: var(--accent);
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .contact-box p {
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+
+    .contact-links {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .contact-link {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .contact-link:hover {
+      background: rgba(201, 151, 62, 0.25);
+    }
+
+    /* Flap Inside Panel (Page 1 Continued / Welcome Overview) */
+    .panel-flap-in {
+      background: #fdfbf7;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .section-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent-hover);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .section-heading {
+      font-family: var(--font-heading);
+      color: var(--primary);
+      font-size: 1.35rem;
+      line-height: 1.3;
+      margin-bottom: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .intro-paragraph {
+      font-size: 0.86rem;
+      line-height: 1.7;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    .highlight-banner {
+      background: rgba(201, 151, 62, 0.12);
+      border-left: 3px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+
+    .highlight-banner p {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    .pillar-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .pillar-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .pillar-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .pillar-text h5 {
+      font-size: 0.84rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .pillar-text p {
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    /* Inside Spread Panels */
+    .panel-founder {
+      background: #fdfaf4;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .founder-badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 14px 0 18px;
+    }
+
+    .founder-stat-chip {
+      background: #ffffff;
+      border: 1px solid #e5dec9;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .founder-stat-chip strong {
+      color: var(--accent-hover);
+      font-weight: 800;
+    }
+
+    .quote-box {
+      position: relative;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 22px 20px;
+      border: 1px solid #ebd5ad;
+      box-shadow: 0 4px 16px rgba(16, 56, 43, 0.04);
+      margin: 16px 0;
+    }
+
+    .quote-box::before {
+      content: '“';
+      position: absolute;
+      top: -10px;
+      left: 14px;
+      font-family: var(--font-serif);
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--accent-subtle);
+      pointer-events: none;
+    }
+
+    .quote-body {
+      font-family: var(--font-serif);
+      font-size: 0.88rem;
+      line-height: 1.68;
+      color: #2e384d;
+      font-style: italic;
+      position: relative;
+      z-index: 2;
+    }
+
+    .quote-signature {
+      margin-top: 14px;
+      text-align: right;
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .quote-signature span {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-style: normal;
+    }
+
+    .japan-inspiration {
+      background: rgba(16, 56, 43, 0.05);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .japan-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .japan-text {
+      font-size: 0.77rem;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    /* Inside Center Panel - The Aurelia Way */
+    .panel-way {
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #ede8df;
+      border-right: 1px solid #ede8df;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .value-card {
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #fbf9f4;
+      border: 1px solid #eee8db;
+      transition: transform 0.15s ease;
+    }
+
+    .value-card:hover {
+      transform: translateX(4px);
+      border-color: var(--accent);
+    }
+
+    .value-card h5 {
+      font-family: var(--font-heading);
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .value-card p {
+      font-size: 0.76rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    /* Inside Right Panel - Integrated Madrasa & Promise */
+    .panel-madrasa {
+      background: #fdfbf7;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .madrasa-card {
+      background: linear-gradient(145deg, #0e3528 0%, #154535 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 22px 20px;
+      box-shadow: 0 8px 20px rgba(14, 53, 40, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .madrasa-card::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(201, 151, 62, 0.15);
+      pointer-events: none;
+    }
+
+    .madrasa-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .madrasa-card h4 {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      line-height: 1.35;
+      color: #ffffff;
+    }
+
+    .madrasa-card p {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #d1fae5;
+      margin-bottom: 12px;
+    }
+
+    .madrasa-highlights {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 10px;
+    }
+
+    .madrasa-hl-item {
+      font-size: 0.74rem;
+      color: #fef3c7;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .child-promise-box {
+      margin-top: 18px;
+      background: #ffffff;
+      border: 1px solid #e7ded0;
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .child-promise-box h5 {
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .promise-traits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .trait-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #1e3a2f;
+      background: #f4eee1;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    /* Print Preview Mode / Media query */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+      .app-header, .controls-banner, .side-indicator {
+        display: none !important;
+      }
+      .workspace {
+        padding: 0;
+      }
+      .tri-fold-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        page-break-after: always;
+        transform: none !important;
+      }
+      .panel {
+        min-height: auto;
+        border: 1px solid #ddd !important;
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .tri-fold-sheet {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      .tri-fold-sheet::before, .tri-fold-sheet::after {
+        display: none;
+      }
+      .panel {
+        min-height: auto;
+        border-bottom: 2px dashed #d1c7b7;
+      }
+      .outside-folded-closed .panel-left,
+      .outside-folded-closed .panel-right,
+      .outside-folded-semi .panel-left,
+      .outside-folded-semi .panel-right,
+      .inside-folded-semi .panel-left,
+      .inside-folded-semi .panel-right {
+        transform: none !important;
+      }
+      .fold-control-wrap {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <a href="../" class="brand-link">
+      <img src="../assets/logo-crest.png" alt="Aurelia Logo">
+      <div>
+        <div class="brand-title">Aurelia Public School</div>
+        <span class="brand-sub">Brochure Mockup Studio</span>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <a href="../" class="btn-site">← Back to Main Site</a>
+      <button class="btn-print" onclick="window.print()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+        Print / PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Controls Bar -->
+  <div class="controls-banner">
+    <!-- View Switcher: Outside vs Inside -->
+    <div class="tabs">
+      <button class="tab-btn active" id="btnSideOutside" onclick="setSide('outside')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+        Outside Spread (Flap In • Back • Front Cover)
+      </button>
+      <button class="tab-btn" id="btnSideInside" onclick="setSide('inside')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Inside Spread (Founder • Way • Madrasa)
+      </button>
+    </div>
+
+    <!-- Fold Simulation Slider / Step Buttons -->
+    <div class="fold-control-wrap">
+      <span class="fold-label">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Fold Simulation:
+      </span>
+      <div class="fold-steps">
+        <button class="fold-step-btn active" id="btnFoldOpen" onclick="setFold('open')">Full Unfolded (Flat)</button>
+        <button class="fold-step-btn" id="btnFoldSemi" onclick="setFold('semi')">Semi-Folded (3D Angle)</button>
+        <button class="fold-step-btn" id="btnFoldClosed" onclick="setFold('closed')">Closed (Cover First)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Display Workspace -->
+  <main class="workspace">
+    <div class="side-indicator" id="sideLabel">
+      <span></span> Showing Outside Spread: Panel 5 (Inside Flap) • Panel 6 (Back / Contact) • Panel 1 (Front Cover)
+    </div>
+
+    <div class="brochure-viewport">
+      <!-- 3-Fold Sheet Container -->
+      <div class="tri-fold-sheet" id="brochureSheet">
+        <!-- Panels injected dynamically by JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // State
+    let currentSide = 'outside'; // 'outside' | 'inside'
+    let currentFold = 'open';    // 'open' | 'semi' | 'closed'
+
+    const outsideHtml = `
+      <!-- PANEL 5: INSIDE FLAP (Fold-In) -->
+      <section class="panel panel-left panel-flap-in">
+        <span class="panel-meta-tag">Side A • Flap In (Page 5)</span>
+        <div>
+          <span class="section-eyebrow">A Beautiful Beginning</span>
+          <h2 class="section-heading">Where Knowledge Meets Values</h2>
+          <p class="intro-paragraph">
+            We believe education is not merely about academic success; it is about nurturing character, building confidence, and preparing children for life.
+          </p>
+          <div class="highlight-banner">
+            <p>“At Aurelia, we aspire to create a joyful, disciplined, and values-centred environment where every child discovers their potential and grows into a responsible, compassionate individual.”</p>
+          </div>
+          <ul class="pillar-list">
+            <li class="pillar-item">
+              <div class="pillar-icon">✓</div>
+              <div class="pillar-text">
+                <h5>Foundational Character</h5>
+                <p>Nurturing respect, humility, and self-discipline from day one.</p>
+              </div>
+            </li>
+            <li class="pillar-item">
+              <div class="pillar-icon">✓</div>
+              <div class="pillar-text">
+                <h5>Individual Attention</h5>
+                <p>Recognising every child’s uniqueness and pacing support.</p>
+              </div>
+            </li>
+            <li class="pillar-item">
+              <div class="pillar-icon">✓</div>
+              <div class="pillar-text">
+                <h5>Joyful Discovery</h5>
+                <p>Calm, positive environments where questions are celebrated.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div style="margin-top: 24px; font-size: 0.76rem; color: var(--text-muted); border-top: 1px solid #ebd5ad; padding-top: 12px; text-align: center;">
+          Aurelia — Where Every Child Begins to Shine
+        </div>
+      </section>
+
+      <!-- PANEL 6: BACK PANEL (Foundation, Vision, Mission & Contact) -->
+      <section class="panel panel-center panel-back">
+        <span class="panel-meta-tag">Side A • Back Cover (Page 6)</span>
+        <div>
+          <div class="back-header">
+            <img src="../assets/logo-crest.png" alt="Aurelia Crest">
+            <h3>AURELIA PUBLIC SCHOOL</h3>
+            <p>where learning meets character</p>
+          </div>
+
+          <div class="foundation-card">
+            <h4>Our Vision</h4>
+            <p>“To Nurture Excellence with Humanity.”</p>
+          </div>
+
+          <div class="foundation-card">
+            <h4>Our Mission</h4>
+            <p>“To Educate the Mind, Enrich the Heart, and Empower the Future.”</p>
+          </div>
+
+          <div class="foundation-card" style="border-color: #cbd5e1; background: #fafafa;">
+            <h4>Our Promise</h4>
+            <p style="font-size: 0.8rem; color: #4b5563;">
+              Growing in Knowledge. Rooted in Values. Ready for Life.
+            </p>
+          </div>
+        </div>
+
+        <div class="contact-box">
+          <h4>Admissions & Enquiries</h4>
+          <p><strong>Edavannappara, Kerala</strong></p>
+          <div class="contact-links">
+            <a href="tel:+919876543210" class="contact-link">📞 +91 [Contact Number]</a>
+            <a href="mailto:info@aureliapublicschool.org" class="contact-link">✉️ admissions@aureliapublicschool.org</a>
+            <a href="https://aureliapublicschool.org" class="contact-link">🌐 aureliapublicschool.org</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANEL 1: FRONT COVER -->
+      <section class="panel panel-right panel-cover">
+        <span class="panel-meta-tag" style="background: rgba(255,255,255,0.12); color: #f6ecdb;">Side A • Front Cover (Page 1)</span>
+        
+        <div class="cover-top">
+          <span class="cover-badge">A Beautiful Beginning</span>
+          <img src="../assets/logo-crest-white.png" alt="Aurelia Gold Crest" class="cover-gold-crest" onerror="this.src='../assets/logo-crest.png'">
+          <h1 class="cover-title">
+            AURELIA
+            <span>PUBLIC SCHOOL</span>
+          </h1>
+          <div class="cover-tagline">“where learning meets character”</div>
+        </div>
+
+        <div class="cover-middle">
+          <p class="cover-lead-text">
+            Inspiring Minds. Shaping Character. Transforming Lives.
+          </p>
+        </div>
+
+        <div class="cover-bottom">
+          <div class="cover-shine-phrase">Where Every Child Begins to <strong>Shine</strong></div>
+          <div class="cover-location">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+            Edavannappara, Kerala
+          </div>
+        </div>
+      </section>
+    `;
+
+    const insideHtml = `
+      <!-- PANEL 2: FOUNDER'S VISION -->
+      <section class="panel panel-left panel-founder">
+        <span class="panel-meta-tag">Side B • Inside Left (Page 2)</span>
+        <div>
+          <span class="section-eyebrow">A Dream Shaped by Experience</span>
+          <h2 class="section-heading">Inspired by the World</h2>
+
+          <div class="founder-badge-row">
+            <div class="founder-stat-chip"><strong>24</strong> Years Total Exp.</div>
+            <div class="founder-stat-chip"><strong>17</strong> Yrs CBSE Principal</div>
+            <div class="founder-stat-chip"><strong>5</strong> Yrs Gulf CBSE</div>
+            <div class="founder-stat-chip"><strong>2</strong> Yrs British Curric.</div>
+          </div>
+
+          <div class="quote-box">
+            <div class="quote-body">
+              “With 24 years of educational leadership, I have developed a deep conviction that education must shape both the mind and the character. My visits to Japanese schools left a lasting impression—their calm classrooms, cleanliness, discipline, and warm hospitality inspired me to build a school where good habits become a way of life.”
+            </div>
+            <div class="quote-signature">
+              — Founder
+              <span>Aurelia Public School</span>
+            </div>
+          </div>
+
+          <div class="japan-inspiration">
+            <div class="japan-icon">🌸</div>
+            <div class="japan-text">
+              <strong>The Japanese Discipline Blend:</strong> Fostering respect, mindful hygiene, calm learning spaces, and moral responsibility integrated into daily routines.
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.78rem; font-style: italic; color: var(--primary); text-align: center; border-top: 1px solid #ebd5ad; padding-top: 12px; margin-top: 16px;">
+          “Aurelia is not just a school I dream of building; it is a culture I dream of nurturing.”
+        </div>
+      </section>
+
+      <!-- PANEL 3: THE AURELIA WAY -->
+      <section class="panel panel-center panel-way">
+        <span class="panel-meta-tag">Side B • Inside Center (Page 3)</span>
+        <div>
+          <span class="section-eyebrow">Core Pillars</span>
+          <h2 class="section-heading">The Aurelia Way</h2>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+            <em>Discipline with Dignity. Learning with Joy.</em> We believe that strong foundations create lifelong learners.
+          </p>
+
+          <div class="values-grid">
+            <div class="value-card">
+              <h5>🛡️ Character & Discipline</h5>
+              <p>Nurturing respect, responsibility, kindness, self-discipline and habitual courtesies.</p>
+            </div>
+
+            <div class="value-card">
+              <h5>💡 Joyful Learning</h5>
+              <p>Encouraging active curiosity, exploration, creative inquiry, and independent thinking.</p>
+            </div>
+
+            <div class="value-card">
+              <h5>🌱 Individual Attention</h5>
+              <p>Recognising every child’s uniqueness and supporting their individual pace and potential.</p>
+            </div>
+
+            <div class="value-card">
+              <h5>🤝 Teachers as Role Models</h5>
+              <p>Building a culture of genuine care, pedagogical consistency, and professional dedication.</p>
+            </div>
+
+            <div class="value-card">
+              <h5>🏡 Partnership with Parents</h5>
+              <p>Working hand-in-hand to raise confident, capable, and emotionally balanced young minds.</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #f4eee1; border-radius: 8px; padding: 10px 14px; text-align: center; font-size: 0.76rem; color: var(--primary); font-weight: 600;">
+          Strong Foundations • Lifelong Learners • Empathetic Citizens
+        </div>
+      </section>
+
+      <!-- PANEL 4: MADRASA & PROMISE -->
+      <section class="panel panel-right panel-madrasa">
+        <span class="panel-meta-tag">Side B • Inside Right (Page 4)</span>
+        <div>
+          <div class="madrasa-card">
+            <span class="madrasa-tag">Integrated Convenience</span>
+            <h4>Academic Education & Madrasa — Together</h4>
+            <p>
+              We understand the daily exhaustion parents and children face when juggling separate travel schedules for school and Madrasa education.
+            </p>
+            <p style="font-size: 0.76rem; color: #ecfdf5;">
+              Aurelia provides a Madrasa facility right within the school setting—coordinating schedules and syncing holidays wherever feasible.
+            </p>
+            <div class="madrasa-highlights">
+              <div class="madrasa-hl-item">✨ Two educational pathways in one peaceful setting</div>
+              <div class="madrasa-hl-item">✨ Synchronized vacation and holiday planning</div>
+              <div class="madrasa-hl-item">✨ Zero double-commute stress for young children</div>
+            </div>
+          </div>
+
+          <div class="child-promise-box">
+            <h5>Our Promise for Tomorrow</h5>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+              We aspire to nurture children who are:
+            </p>
+            <div class="promise-traits">
+              <span class="trait-badge">Confident in abilities</span>
+              <span class="trait-badge">Disciplined in habits</span>
+              <span class="trait-badge">Kind in relationships</span>
+              <span class="trait-badge">Curious in learning</span>
+              <span class="trait-badge">Responsible in action</span>
+              <span class="trait-badge">Rooted in values</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.76rem; color: var(--accent-hover); font-weight: 600; text-align: center; border-top: 1px solid #ebd5ad; padding-top: 12px; margin-top: 14px;">
+          Ready for the Future • Grounded in Values
+        </div>
+      </section>
+    `;
+
+    function renderSheet() {
+      const sheet = document.getElementById('brochureSheet');
+      const sideLabel = document.getElementById('sideLabel');
+
+      if (currentSide === 'outside') {
+        sheet.innerHTML = outsideHtml;
+        sideLabel.innerHTML = `<span></span> <strong>Outside Spread:</strong> Panel 5 (Inside Flap) • Panel 6 (Back / Contact) • Panel 1 (Front Cover)`;
+      } else {
+        sheet.innerHTML = insideHtml;
+        sideLabel.innerHTML = `<span></span> <strong>Inside Spread:</strong> Panel 2 (Founder's Vision) • Panel 3 (The Aurelia Way) • Panel 4 (Integrated Madrasa)`;
+      }
+      applyFoldClass();
+    }
+
+    function setSide(side) {
+      currentSide = side;
+      document.getElementById('btnSideOutside').classList.toggle('active', side === 'outside');
+      document.getElementById('btnSideInside').classList.toggle('active', side === 'inside');
+      
+      // Auto reset fold to open on switch for clear reading, unless user is in semi
+      renderSheet();
+    }
+
+    function setFold(fold) {
+      currentFold = fold;
+      document.getElementById('btnFoldOpen').classList.toggle('active', fold === 'open');
+      document.getElementById('btnFoldSemi').classList.toggle('active', fold === 'semi');
+      document.getElementById('btnFoldClosed').classList.toggle('active', fold === 'closed');
+      applyFoldClass();
+    }
+
+    function applyFoldClass() {
+      const sheet = document.getElementById('brochureSheet');
+      sheet.className = 'tri-fold-sheet';
+
+      if (currentFold === 'closed') {
+        if (currentSide === 'outside') {
+          sheet.classList.add('outside-folded-closed');
+        } else {
+          // If inside is closed, show semi for perspective
+          sheet.classList.add('inside-folded-semi');
+        }
+      } else if (currentFold === 'semi') {
+        if (currentSide === 'outside') {
+          sheet.classList.add('outside-folded-semi');
+        } else {
+          sheet.classList.add('inside-folded-semi');
+        }
+      }
+    }
+
+    // Keyboard navigation helper
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        setSide(currentSide === 'outside' ? 'inside' : 'outside');
+      } else if (e.key === '1') {
+        setFold('open');
+      } else if (e.key === '2') {
+        setFold('semi');
+      } else if (e.key === '3') {
+        setFold('closed');
+      }
+    });
+
+    // Initial Render
+    renderSheet();
+  </script>
+</body>
+</html>
