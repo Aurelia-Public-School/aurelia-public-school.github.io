@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aurelia Public School | Interactive Tri-Fold Experience</title>
-  <meta name="description" content="3D Interactive Tri-Fold Brochure for Aurelia Public School, Edavannappara. Touch to unfold, double tap to flip, drag to inspect in 3D.">
+  <title>Aurelia Public School | Brochure</title>
+  <meta name="description" content="Interactive 3-Fold Brochure for Aurelia Public School, Edavannappara, Kerala.">
   <link rel="icon" type="image/png" href="../assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,33 +19,17 @@
       --accent-light: #f6ecdb;
       --accent-subtle: #ebd5ad;
       --accent-hover: #b07e29;
-      --gold-gradient: linear-gradient(135deg, #dfb76c 0%, #c9973e 50%, #9e6f22 100%);
-      --emerald-gradient: linear-gradient(145deg, #154636 0%, #0d3427 60%, #072018 100%);
+      --emerald-gradient: linear-gradient(145deg, #164938 0%, #0d3427 58%, #072018 100%);
       --text-dark: #1f2937;
       --text-muted: #52606d;
-      --bg-canvas: #0e1210;
       --paper-base: #fcfaf6;
       --font-heading: 'Cinzel', serif;
       --font-serif: 'Playfair Display', Georgia, serif;
       --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
       
-      /* Panel Dimensions for 3D Math */
-      --panel-width: 320px;
-      --panel-height: 680px;
-    }
-
-    @media (max-width: 768px) {
-      :root {
-        --panel-width: 280px;
-        --panel-height: 600px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      :root {
-        --panel-width: 250px;
-        --panel-height: 540px;
-      }
+      /* Fixed physical print aspect ratio; scaled dynamically per viewport */
+      --panel-width: 310px;
+      --panel-height: 640px;
     }
 
     * {
@@ -61,39 +45,23 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 35%, #18231e 0%, #0d1210 65%, #050807 100%);
+      background: radial-gradient(circle at 50% 38%, #1a2520 0%, #0d1310 62%, #060908 100%);
       font-family: var(--font-body);
       color: #e5e7eb;
       position: fixed;
       touch-action: none;
     }
 
-    /* Ambient Floor Drop Shadow */
-    .floor-ambient-shadow {
-      position: absolute;
-      top: 60%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotateX(80deg);
-      width: 700px;
-      height: 480px;
-      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.4) 40%, transparent 75%);
-      filter: blur(28px);
-      pointer-events: none;
-      transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
-      z-index: 1;
-    }
-
-    /* 3D Scene World */
+    /* Interactive 3D Viewport */
     .scene-viewport {
       width: 100vw;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      perspective: 1800px;
-      perspective-origin: 50% 45%;
+      perspective: 2000px;
+      perspective-origin: 50% 48%;
       position: relative;
-      z-index: 2;
       cursor: grab;
     }
 
@@ -101,163 +69,199 @@
       cursor: grabbing;
     }
 
-    /* Floating Wobble Origin Container */
+    /* Pan & Scale Rig (screen-space translation & zoom) */
+    .pan-rig {
+      transform-style: preserve-3d;
+      position: relative;
+      will-change: transform;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pan-rig.dragging {
+      transition: none;
+    }
+
+    /* Ambient Floor Contact Shadow (moves with the brochure) */
+    .floor-shadow {
+      position: absolute;
+      top: 56%;
+      left: 50%;
+      width: 380px;
+      height: 520px;
+      transform: translate3d(-50%, -50%, -90px) rotateX(78deg);
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.42) 45%, transparent 74%);
+      filter: blur(26px);
+      pointer-events: none;
+      transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.9s ease;
+    }
+
+    /* Floating Wobble Rig */
     .wobble-rig {
       transform-style: preserve-3d;
-      animation: gentleFloat 5s ease-in-out infinite alternate;
-      transition: transform 0.1s ease-out;
+      animation: gentleWobble 4.8s ease-in-out infinite alternate;
     }
 
-    @keyframes gentleFloat {
+    @keyframes gentleWobble {
       0% {
-        transform: translateY(-8px) rotateZ(-0.4deg);
+        transform: translate3d(0px, -7px, 0px) rotateZ(-0.6deg) rotateX(1.2deg);
       }
       100% {
-        transform: translateY(10px) rotateZ(0.6deg);
+        transform: translate3d(0px, 8px, 12px) rotateZ(0.6deg) rotateX(-1.2deg);
       }
     }
 
-    /* Interactive 3D Rotator (driven by drag + flip) */
+    /* 3D Orbit & Flip Rig (pivots strictly around Center of Gravity) */
     .orbit-rig {
       transform-style: preserve-3d;
-      transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
       position: relative;
     }
 
-    /* The Tri-Fold Assembly centered on Back Panel (Center) */
+    .orbit-rig.dragging {
+      transition: none;
+    }
+
+    /* Brochure Assembly: shifts CoG to (0,0,0) of orbit-rig */
     .brochure-assembly {
       width: var(--panel-width);
       height: var(--panel-height);
       position: relative;
       transform-style: preserve-3d;
+      transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* Core Panel Styling */
-    .panel-face {
+    /* =========================================================
+       NON-INTERSECTING 3D HINGE GEOMETRY
+       Using exact parallel Z-offsets:
+       - Center Panel sits at Z = 0px
+       - Right Wing (Inner Flap) hinge at Z = +2.5px, body at -2.5px
+         -> Unfolded (0deg): Z = 0px
+         -> Folded (-180deg): Z = +5px (parallel, 5px above Center)
+       - Left Wing (Front Cover) hinge at Z = +6px, body at -6px
+         -> Unfolded (0deg): Z = 0px
+         -> Folded (+180deg): Z = +12px (parallel, 7px above Right Wing)
+       ========================================================= */
+    .panel-center {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-      box-sizing: border-box;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      inset: 0;
       transform-style: preserve-3d;
-      box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.45);
     }
 
-    /* Panel Hinge Wings */
     .panel-wing {
       position: absolute;
       top: 0;
       width: var(--panel-width);
       height: var(--panel-height);
       transform-style: preserve-3d;
-      transition: transform 0.95s cubic-bezier(0.25, 1, 0.3, 1);
+      transition: transform 0.95s cubic-bezier(0.24, 1, 0.32, 1);
     }
 
-    /* Right Wing (Front Cover / Inside Right) hinged on Center Right edge */
     .wing-right {
       left: 100%;
       transform-origin: left center;
     }
 
-    /* Left Wing (Inside Flap / Inside Left) hinged on Center Left edge */
     .wing-left {
       right: 100%;
       transform-origin: right center;
     }
 
-    /* Crease Lighting Overlays */
-    .crease-shadow {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 18px;
-      pointer-events: none;
-      z-index: 25;
-      transition: opacity 0.8s ease;
-    }
-
-    .crease-left {
-      left: 0;
-      background: linear-gradient(to right, rgba(0,0,0,0.35) 0%, transparent 100%);
-    }
-
-    .crease-right {
-      right: 0;
-      background: linear-gradient(to left, rgba(0,0,0,0.35) 0%, transparent 100%);
-    }
-
-    /* Dynamic Ambient Shading between overlapping folds */
-    .fold-occlusion {
+    .wing-body {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      pointer-events: none;
-      z-index: 20;
-      opacity: 0;
-      transition: opacity 0.85s ease;
+      transform-style: preserve-3d;
     }
 
-    /* Backface flipped panels (when looking from behind or opposite side) */
-    .face-front {
-      z-index: 2;
-      transform: rotateY(0deg);
+    .wing-right .wing-body {
+      transform: translateZ(-2.5px);
     }
 
-    .face-back {
-      z-index: 1;
-      transform: rotateY(180deg);
+    .wing-left .wing-body {
+      transform: translateZ(-6px);
     }
 
-    /* =========================================================
-       PANEL CONTENT DESIGN (Exact School Specs & Identity)
-       ========================================================= */
+    /* 3D Planes (Keep overflow off 3D planes for iOS WebKit depth buffer) */
+    .panel-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .face-inside {
+      transform: translateZ(0.6px);
+    }
+
+    .face-outside {
+      transform: rotateY(180deg) translateZ(0.6px);
+    }
+
+    /* 2D Inner Card where overflow & border-radius are safely applied */
     .panel-inner {
       width: 100%;
       height: 100%;
-      padding: 34px 26px;
+      border-radius: 6px;
+      overflow: hidden;
+      padding: 30px 24px;
       background-color: var(--paper-base);
       color: var(--text-dark);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
+      box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.38),
+        inset 0 0 0 1px rgba(201, 151, 62, 0.18);
     }
 
-    /* Texture / subtle paper grain overlay */
+    /* Subtle paper lighting sheen */
     .panel-inner::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 0%, rgba(201, 151, 62, 0.05), transparent 70%);
+      background: radial-gradient(circle at 50% 0%, rgba(201, 151, 62, 0.06), transparent 70%);
       pointer-events: none;
     }
 
-    .panel-tag {
+    /* Dynamic Fold Crease & Ambient Shadows */
+    .crease-overlay {
       position: absolute;
-      top: 14px;
-      right: 16px;
-      font-size: 0.6rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: #94a3b8;
-      background: rgba(0, 0, 0, 0.04);
-      padding: 3px 8px;
-      border-radius: 4px;
+      inset: 0;
+      pointer-events: none;
+      z-index: 15;
+      transition: opacity 0.85s ease;
     }
 
-    /* 1. FRONT COVER (Panel 1) */
+    .crease-from-left {
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.06) 12%, transparent 32%);
+    }
+
+    .crease-from-right {
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.06) 12%, transparent 32%);
+    }
+
+    .fold-depth-shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.38) 100%);
+      pointer-events: none;
+      z-index: 16;
+      opacity: 0;
+      transition: opacity 0.85s ease;
+    }
+
+    /* =========================================================
+       PANEL 1: FRONT COVER (Left Wing Outside Face)
+       ========================================================= */
     .panel-front-cover {
       background: var(--emerald-gradient);
       color: #fff;
       text-align: center;
-      padding: 44px 24px 34px;
-      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 42px 24px 32px;
+      box-shadow: 
+        -6px 14px 34px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(201, 151, 62, 0.32);
     }
 
     .cover-top {
@@ -267,23 +271,23 @@
       width: 100%;
     }
 
-    .cover-badge {
-      font-size: 0.68rem;
+    .cover-eyebrow {
+      font-size: 0.66rem;
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--accent);
       border-bottom: 1px solid rgba(201, 151, 62, 0.4);
       padding-bottom: 5px;
-      margin-bottom: 22px;
+      margin-bottom: 24px;
       font-weight: 600;
     }
 
     .cover-crest {
-      width: 86px;
-      height: 86px;
+      width: 88px;
+      height: 88px;
       object-fit: contain;
       filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .cover-school-name {
@@ -293,33 +297,33 @@
       line-height: 1.15;
       font-weight: 800;
       color: #ffffff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     .cover-school-name span {
       display: block;
       color: var(--accent);
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       letter-spacing: 0.16em;
       font-weight: 600;
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
     .cover-tagline {
       font-family: var(--font-serif);
       font-style: italic;
       color: var(--accent-light);
-      font-size: 1rem;
+      font-size: 0.98rem;
       margin-top: 14px;
       line-height: 1.4;
     }
 
     .cover-mid {
-      padding: 16px 8px;
+      padding: 14px 8px;
     }
 
     .cover-lead {
-      font-size: 0.84rem;
+      font-size: 0.83rem;
       line-height: 1.65;
       color: #e2e8f0;
       font-weight: 400;
@@ -333,7 +337,7 @@
 
     .cover-shine {
       font-family: var(--font-heading);
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       letter-spacing: 0.06em;
       color: #fff;
       font-weight: 700;
@@ -345,7 +349,7 @@
     }
 
     .cover-loc {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: #cbd5e1;
@@ -355,106 +359,15 @@
       gap: 5px;
     }
 
-    /* 2. BACK COVER (Panel 6 - Center Outside) */
-    .panel-back-cover {
-      background: #faf7f0;
-      border-left: 1px dashed rgba(201, 151, 62, 0.3);
-    }
-
-    .back-crest-wrap {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .back-crest-wrap img {
-      width: 48px;
-      height: 48px;
-      object-fit: contain;
-      margin-bottom: 6px;
-    }
-
-    .back-school-title {
-      font-family: var(--font-heading);
-      font-size: 1.18rem;
-      color: var(--primary);
-      letter-spacing: 0.04em;
-    }
-
-    .back-tagline {
-      font-family: var(--font-serif);
-      font-style: italic;
-      font-size: 0.8rem;
-      color: var(--accent-hover);
-      margin-top: 2px;
-    }
-
-    .vision-mission-card {
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      border: 1px solid var(--accent-subtle);
-      box-shadow: 0 2px 6px rgba(13, 52, 39, 0.04);
-    }
-
-    .vision-mission-card h4 {
-      font-family: var(--font-heading);
-      font-size: 0.72rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .vision-mission-card h4::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--accent-subtle);
-    }
-
-    .vision-mission-card p {
-      font-size: 0.82rem;
-      line-height: 1.5;
-      color: #374151;
-      font-weight: 500;
-    }
-
-    .contact-cta {
-      background: var(--primary);
-      color: #fff;
-      border-radius: 10px;
-      padding: 18px 16px;
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .contact-cta h4 {
-      font-family: var(--font-heading);
-      color: var(--accent);
-      font-size: 0.88rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .contact-cta p {
-      font-size: 0.78rem;
-      color: #e2e8f0;
-      line-height: 1.5;
-      margin-bottom: 4px;
-    }
-
-    /* 3. FLAP IN (Panel 5 - Left Outside) */
+    /* =========================================================
+       PANEL 5: INNER FLAP — A BEAUTIFUL BEGINNING (Right Wing Outside)
+       ========================================================= */
     .panel-flap-in {
       background: #fdfbf7;
     }
 
     .section-eyebrow {
-      font-size: 0.65rem;
+      font-size: 0.63rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       font-weight: 700;
@@ -466,30 +379,30 @@
     .section-heading {
       font-family: var(--font-heading);
       color: var(--primary);
-      font-size: 1.25rem;
-      line-height: 1.28;
-      margin-bottom: 12px;
+      font-size: 1.2rem;
+      line-height: 1.26;
+      margin-bottom: 10px;
       letter-spacing: 0.02em;
     }
 
     .intro-p {
-      font-size: 0.82rem;
-      line-height: 1.65;
+      font-size: 0.8rem;
+      line-height: 1.6;
       color: var(--text-dark);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .callout-box {
-      background: rgba(201, 151, 62, 0.12);
+      background: rgba(201, 151, 62, 0.11);
       border-left: 3px solid var(--accent);
-      padding: 12px 14px;
+      padding: 11px 13px;
       border-radius: 0 6px 6px 0;
       margin-bottom: 14px;
     }
 
     .callout-box p {
       font-family: var(--font-serif);
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       line-height: 1.48;
       color: var(--primary-dark);
       font-weight: 600;
@@ -509,34 +422,45 @@
     }
 
     .check-icon {
-      width: 20px;
-      height: 20px;
+      width: 19px;
+      height: 19px;
       border-radius: 50%;
       background: var(--primary);
       color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 800;
       flex-shrink: 0;
       margin-top: 2px;
     }
 
     .check-text h5 {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--primary);
       font-weight: 700;
       margin-bottom: 1px;
     }
 
     .check-text p {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       line-height: 1.4;
       color: var(--text-muted);
     }
 
-    /* 4. FOUNDER'S VISION (Panel 2 - Inside Left) */
+    .panel-footer-line {
+      font-size: 0.71rem;
+      color: var(--text-muted);
+      border-top: 1px solid #ebd5ad;
+      padding-top: 10px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* =========================================================
+       PANEL 2: FOUNDER'S VISION (Left Wing Inside Face)
+       ========================================================= */
     .panel-founder {
       background: #fdfaf4;
     }
@@ -545,7 +469,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
-      margin: 12px 0 14px;
+      margin: 8px 0 12px;
     }
 
     .stat-pill {
@@ -553,7 +477,7 @@
       border: 1px solid #e5dec9;
       padding: 6px 8px;
       border-radius: 6px;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
       color: var(--primary);
       text-align: center;
@@ -562,7 +486,7 @@
     .stat-pill strong {
       display: block;
       color: var(--accent-hover);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 800;
     }
 
@@ -570,27 +494,27 @@
       position: relative;
       background: #ffffff;
       border-radius: 10px;
-      padding: 16px 14px;
+      padding: 14px 14px;
       border: 1px solid #ebd5ad;
-      box-shadow: 0 3px 12px rgba(13, 52, 39, 0.04);
-      margin-bottom: 12px;
+      box-shadow: 0 3px 10px rgba(13, 52, 39, 0.04);
+      margin-bottom: 10px;
     }
 
     .founder-quote::before {
       content: '“';
       position: absolute;
-      top: -8px;
+      top: -6px;
       left: 10px;
       font-family: var(--font-serif);
-      font-size: 2.8rem;
+      font-size: 2.5rem;
       line-height: 1;
       color: var(--accent-subtle);
     }
 
     .founder-quote-body {
       font-family: var(--font-serif);
-      font-size: 0.82rem;
-      line-height: 1.6;
+      font-size: 0.78rem;
+      line-height: 1.56;
       color: #2e384d;
       font-style: italic;
       position: relative;
@@ -598,10 +522,10 @@
     }
 
     .founder-sig {
-      margin-top: 10px;
+      margin-top: 8px;
       text-align: right;
       font-family: var(--font-heading);
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       color: var(--primary);
       font-weight: 700;
     }
@@ -609,7 +533,7 @@
     .founder-sig span {
       display: block;
       font-family: var(--font-body);
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
       font-weight: 500;
     }
@@ -617,39 +541,39 @@
     .japan-badge {
       background: rgba(13, 52, 39, 0.05);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 9px 11px;
       display: flex;
       gap: 8px;
       align-items: center;
     }
 
     .japan-badge-icon {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       line-height: 1;
     }
 
     .japan-badge-text {
-      font-size: 0.73rem;
-      line-height: 1.45;
+      font-size: 0.71rem;
+      line-height: 1.42;
       color: #334155;
     }
 
-    /* 5. THE AURELIA WAY (Panel 3 - Inside Center) */
+    /* =========================================================
+       PANEL 3: THE AURELIA WAY (Center Panel Inside Face)
+       ========================================================= */
     .panel-the-way {
       background: #ffffff;
-      border-left: 1px solid #ede8df;
-      border-right: 1px solid #ede8df;
     }
 
     .pillar-cards {
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin: 12px 0;
+      gap: 8px;
+      margin: 8px 0;
     }
 
     .pillar-card {
-      padding: 9px 12px;
+      padding: 8px 11px;
       border-radius: 7px;
       background: #fbf9f4;
       border: 1px solid #eee8db;
@@ -657,7 +581,7 @@
 
     .pillar-card h5 {
       font-family: var(--font-heading);
-      font-size: 0.77rem;
+      font-size: 0.75rem;
       letter-spacing: 0.04em;
       color: var(--primary);
       margin-bottom: 2px;
@@ -667,12 +591,14 @@
     }
 
     .pillar-card p {
-      font-size: 0.72rem;
-      line-height: 1.42;
+      font-size: 0.7rem;
+      line-height: 1.38;
       color: var(--text-muted);
     }
 
-    /* 6. INTEGRATED MADRASA & PROMISE (Panel 4 - Inside Right) */
+    /* =========================================================
+       PANEL 4: MADRASA & PROMISE (Right Wing Inside Face)
+       ========================================================= */
     .panel-madrasa-promise {
       background: #fdfbf7;
     }
@@ -681,25 +607,14 @@
       background: linear-gradient(145deg, #0d3427 0%, #154636 100%);
       color: #fff;
       border-radius: 10px;
-      padding: 18px 16px;
-      box-shadow: 0 6px 16px rgba(13, 52, 39, 0.16);
+      padding: 16px 15px;
+      box-shadow: 0 6px 16px rgba(13, 52, 39, 0.14);
       position: relative;
       overflow: hidden;
     }
 
-    .madrasa-hero-card::after {
-      content: '';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: rgba(201, 151, 62, 0.16);
-    }
-
     .madrasa-hero-tag {
-      font-size: 0.64rem;
+      font-size: 0.62rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
@@ -710,30 +625,30 @@
 
     .madrasa-hero-card h4 {
       font-family: var(--font-heading);
-      font-size: 0.98rem;
+      font-size: 0.94rem;
       letter-spacing: 0.03em;
       margin-bottom: 8px;
-      line-height: 1.35;
+      line-height: 1.32;
       color: #ffffff;
     }
 
     .madrasa-hero-card p {
-      font-size: 0.76rem;
-      line-height: 1.5;
+      font-size: 0.74rem;
+      line-height: 1.48;
       color: #d1fae5;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
 
     .madrasa-points {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       border-top: 1px solid rgba(255, 255, 255, 0.14);
       padding-top: 8px;
     }
 
     .madrasa-pt {
-      font-size: 0.71rem;
+      font-size: 0.69rem;
       color: #fef3c7;
       display: flex;
       align-items: center;
@@ -741,20 +656,20 @@
     }
 
     .promise-strip {
-      margin-top: 14px;
+      margin-top: 12px;
       background: #ffffff;
       border: 1px solid #e7ded0;
       border-radius: 8px;
-      padding: 14px 14px;
+      padding: 12px 13px;
     }
 
     .promise-strip h5 {
       font-family: var(--font-heading);
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--primary);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .traits-tags {
@@ -764,7 +679,7 @@
     }
 
     .trait-tag {
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 600;
       color: #1e3a2f;
       background: #f4eee1;
@@ -772,658 +687,751 @@
       border-radius: 4px;
     }
 
-    /* Floating UI Instruction Pills */
-    .gesture-hint {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(13, 22, 18, 0.85);
-      border: 1px solid rgba(201, 151, 62, 0.35);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 30px;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      z-index: 100;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      pointer-events: auto;
+    /* =========================================================
+       PANEL 6: BACK COVER (Center Panel Outside Face)
+       ========================================================= */
+    .panel-back-cover {
+      background: #faf7f0;
     }
 
-    .hint-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 0.74rem;
-      color: #d1d5db;
-      font-weight: 500;
+    .back-crest-wrap {
+      text-align: center;
+      margin-bottom: 14px;
     }
 
-    .hint-item strong {
-      color: var(--accent);
-      font-weight: 700;
+    .back-crest-wrap img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      margin-bottom: 6px;
     }
 
-    .hint-item svg {
-      color: var(--accent);
+    .back-school-title {
+      font-family: var(--font-heading);
+      font-size: 1.14rem;
+      color: var(--primary);
+      letter-spacing: 0.04em;
     }
 
-    .hint-divider {
-      width: 1px;
-      height: 16px;
-      background: rgba(255, 255, 255, 0.15);
+    .back-tagline {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.78rem;
+      color: var(--accent-hover);
+      margin-top: 2px;
     }
 
-    .btn-quick-toggle {
-      background: rgba(201, 151, 62, 0.2);
-      border: 1px solid var(--accent);
-      color: #f6ecdb;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
+    .vision-mission-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 9px;
+      border: 1px solid var(--accent-subtle);
+      box-shadow: 0 2px 6px rgba(13, 52, 39, 0.04);
     }
 
-    .btn-quick-toggle:hover {
-      background: var(--accent);
-      color: #0d3427;
-    }
-
-    /* Status indicator in top corner */
-    .state-badge {
-      position: absolute;
-      top: 20px;
-      left: 20px;
+    .vision-mission-card h4 {
+      font-family: var(--font-heading);
       font-size: 0.7rem;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      font-weight: 700;
-      color: var(--accent);
-      background: rgba(13, 22, 18, 0.6);
-      backdrop-filter: blur(8px);
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1px solid rgba(201, 151, 62, 0.25);
-      z-index: 50;
+      color: var(--primary);
+      margin-bottom: 4px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .state-badge::before {
+    .vision-mission-card h4::after {
       content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
+      flex: 1;
+      height: 1px;
+      background: var(--accent-subtle);
+    }
+
+    .vision-mission-card p {
+      font-size: 0.8rem;
+      line-height: 1.48;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .contact-cta {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 16px 14px;
+      text-align: center;
+    }
+
+    .contact-cta h4 {
+      font-family: var(--font-heading);
+      color: var(--accent);
+      font-size: 0.84rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .contact-cta p {
+      font-size: 0.75rem;
+      color: #e2e8f0;
+      line-height: 1.48;
+      margin-bottom: 3px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Floor Ambient Contact Shadow -->
-  <div class="floor-ambient-shadow" id="floorShadow"></div>
-
-  <!-- Realtime State Badge -->
-  <div class="state-badge" id="stateBadge">Closed (Front Cover)</div>
-
-  <!-- Interactive 3D Scene -->
+  <!-- Pure 3D Scene (No UI chrome, headers, or page numbers) -->
   <div class="scene-viewport" id="sceneViewport">
     
-    <!-- Wobble Rig for natural idle sway -->
-    <div class="wobble-rig" id="wobbleRig">
-      
-      <!-- Orbit Rig: manipulated by drag rotation and double-tap flip -->
-      <div class="orbit-rig" id="orbitRig">
+    <!-- Pan & Scale Container -->
+    <div class="pan-rig" id="panRig">
+
+      <!-- Ambient Floor Shadow beneath the paper -->
+      <div class="floor-shadow" id="floorShadow"></div>
+
+      <!-- Gentle Floating Wobble Container -->
+      <div class="wobble-rig" id="wobbleRig">
         
-        <!-- The Tri-Fold Paper Assembly -->
-        <div class="brochure-assembly" id="brochureAssembly">
+        <!-- 3D Orbit & Flip Container (Pivots around true Center of Gravity) -->
+        <div class="orbit-rig" id="orbitRig">
+          
+          <!-- The Tri-Fold Paper Assembly -->
+          <div class="brochure-assembly" id="brochureAssembly">
 
-          <!-- ==============================================
-               CENTER ASSEMBLY (Center of Gravity)
-               Back: Center Outside = Panel 6 (Back Cover)
-               Front: Center Inside = Panel 3 (The Aurelia Way)
-               ============================================== -->
-          <!-- Face facing Outside (Panel 6 - Back Cover) -->
-          <div class="panel-face face-front" id="panelCenterBack">
-            <div class="panel-inner panel-back-cover">
-              <span class="panel-tag">Back Cover • P6</span>
-              <div>
-                <div class="back-crest-wrap">
-                  <img src="../assets/logo-crest.png" alt="Aurelia Crest">
-                  <h3 class="back-school-title">AURELIA PUBLIC SCHOOL</h3>
-                  <p class="back-tagline">where learning meets character</p>
-                </div>
+            <!-- ==============================================
+                 CENTER PANEL (Z = 0px)
+                 Inside Face (+Z): The Aurelia Way
+                 Outside Face (-Z): Back Cover (Vision, Mission, Contact)
+                 ============================================== -->
+            <div class="panel-center">
+              
+              <!-- Inside Center: The Aurelia Way -->
+              <div class="panel-face face-inside">
+                <div class="panel-inner panel-the-way">
+                  <div class="crease-overlay crease-from-left"></div>
+                  <div class="crease-overlay crease-from-right"></div>
+                  <div class="fold-depth-shade" id="shadeCenterInside"></div>
 
-                <div class="vision-mission-card">
-                  <h4>Our Vision</h4>
-                  <p>“To Nurture Excellence with Humanity.”</p>
-                </div>
-
-                <div class="vision-mission-card">
-                  <h4>Our Mission</h4>
-                  <p>“To Educate the Mind, Enrich the Heart, and Empower the Future.”</p>
-                </div>
-
-                <div class="vision-mission-card" style="border-color: #cbd5e1; background: #fafafa;">
-                  <h4>Our Promise</h4>
-                  <p style="font-size: 0.77rem; color: #4b5563;">
-                    Growing in Knowledge. Rooted in Values. Ready for Life.
-                  </p>
-                </div>
-              </div>
-
-              <div class="contact-cta">
-                <h4>Admissions & Enquiries</h4>
-                <p><strong>Edavannappara, Kerala</strong></p>
-                <p style="font-size: 0.74rem; color: #cbd5e1;">📞 +91 [Contact Number]</p>
-                <p style="font-size: 0.74rem; color: #cbd5e1;">✉️ admissions@aureliapublicschool.org</p>
-                <p style="font-size: 0.72rem; color: var(--accent); margin-top: 4px;">🌐 aureliapublicschool.org</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Face facing Inside (Panel 3 - The Aurelia Way) -->
-          <div class="panel-face face-back" id="panelCenterInside">
-            <div class="panel-inner panel-the-way">
-              <span class="panel-tag">Inside Center • P3</span>
-              <div>
-                <span class="section-eyebrow">Core Philosophy</span>
-                <h2 class="section-heading">The Aurelia Way</h2>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
-                  <em>Discipline with Dignity. Learning with Joy.</em> Strong foundations create lifelong learners.
-                </p>
-
-                <div class="pillar-cards">
-                  <div class="pillar-card">
-                    <h5>🛡️ Character & Discipline</h5>
-                    <p>Respect, responsibility, kindness, self-discipline & good daily habits.</p>
-                  </div>
-                  <div class="pillar-card">
-                    <h5>💡 Joyful Learning</h5>
-                    <p>Curiosity, exploration, creative inquiry & independent thinking.</p>
-                  </div>
-                  <div class="pillar-card">
-                    <h5>🌱 Individual Attention</h5>
-                    <p>Recognising uniqueness and nurturing each child’s distinct pace.</p>
-                  </div>
-                  <div class="pillar-card">
-                    <h5>🤝 Teachers as Role Models</h5>
-                    <p>Culture of care, exemplary conduct and pedagogical devotion.</p>
-                  </div>
-                  <div class="pillar-card">
-                    <h5>🏡 Partnership with Parents</h5>
-                    <p>Working together to raise grounded, emotionally capable children.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div style="background: #f4eee1; border-radius: 6px; padding: 8px 10px; text-align: center; font-size: 0.72rem; color: var(--primary); font-weight: 600;">
-                Strong Foundations • Lifelong Learners • Empathetic Citizens
-              </div>
-            </div>
-          </div>
-
-
-          <!-- ==============================================
-               RIGHT WING (Hinged on Right edge of Center)
-               Closed rotation: folds over center face
-               Unfolds: swings right 180deg
-               Outside face: Panel 1 (Front Cover)
-               Inside face: Panel 4 (Academic + Madrasa & Promise)
-               ============================================== -->
-          <div class="panel-wing wing-right" id="wingRight">
-            
-            <!-- Crease Shadow line -->
-            <div class="crease-shadow crease-left"></div>
-            <div class="fold-occlusion" id="occlusionRight"></div>
-
-            <!-- Front Cover (Panel 1) -->
-            <div class="panel-face face-front">
-              <div class="panel-inner panel-front-cover">
-                <span class="panel-tag" style="background: rgba(255,255,255,0.12); color: #f6ecdb;">Front Cover • P1</span>
-                
-                <div class="cover-top">
-                  <span class="cover-badge">A Beautiful Beginning</span>
-                  <img src="../assets/logo-crest-white.png" alt="Aurelia Gold Crest" class="cover-crest" onerror="this.src='../assets/logo-crest.png'">
-                  <h1 class="cover-school-name">
-                    AURELIA
-                    <span>PUBLIC SCHOOL</span>
-                  </h1>
-                  <div class="cover-tagline">“where learning meets character”</div>
-                </div>
-
-                <div class="cover-mid">
-                  <p class="cover-lead">
-                    Inspiring Minds. Shaping Character. Transforming Lives.
-                  </p>
-                </div>
-
-                <div class="cover-bottom">
-                  <div class="cover-shine">Where Every Child Begins to <strong>Shine</strong></div>
-                  <div class="cover-loc">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Edavannappara, Kerala
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Inside Right (Panel 4: Madrasa & Promise) -->
-            <div class="panel-face face-back">
-              <div class="panel-inner panel-madrasa-promise">
-                <span class="panel-tag">Inside Right • P4</span>
-                <div>
-                  <div class="madrasa-hero-card">
-                    <span class="madrasa-hero-tag">Integrated Convenience</span>
-                    <h4>Academic Education & Madrasa — Together</h4>
-                    <p>
-                      We understand the daily exhaustion children face with double travel for school and Madrasa.
+                  <div>
+                    <span class="section-eyebrow">Core Philosophy</span>
+                    <h2 class="section-heading">The Aurelia Way</h2>
+                    <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 6px;">
+                      <em>Discipline with Dignity. Learning with Joy.</em> At Aurelia, we believe that strong foundations create lifelong learners.
                     </p>
-                    <p style="font-size: 0.72rem; color: #ecfdf5;">
-                      Aurelia provides Madrasa within the campus—coordinating schedules and holiday calendars.
-                    </p>
-                    <div class="madrasa-points">
-                      <div class="madrasa-pt">✨ Two pathways in one setting</div>
-                      <div class="madrasa-pt">✨ Synchronized vacation planning</div>
-                      <div class="madrasa-pt">✨ Zero double-commute stress</div>
+
+                    <div class="pillar-cards">
+                      <div class="pillar-card">
+                        <h5>🛡️ Character & Discipline</h5>
+                        <p>Nurturing respect, responsibility, kindness, self-discipline and good habits.</p>
+                      </div>
+                      <div class="pillar-card">
+                        <h5>💡 Joyful Learning</h5>
+                        <p>Encouraging curiosity, creativity, exploration and independent thinking.</p>
+                      </div>
+                      <div class="pillar-card">
+                        <h5>🌱 Individual Attention</h5>
+                        <p>Recognising every child’s uniqueness and supporting their potential.</p>
+                      </div>
+                      <div class="pillar-card">
+                        <h5>🤝 Teachers as Role Models</h5>
+                        <p>Building a culture of care, consistency and professional excellence.</p>
+                      </div>
+                      <div class="pillar-card">
+                        <h5>🏡 Partnership with Parents</h5>
+                        <p>Working together to nurture confident, capable and compassionate children.</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="promise-strip">
-                    <h5>Our Promise for Tomorrow</h5>
-                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px;">
-                      Nurturing children who are:
-                    </p>
-                    <div class="traits-tags">
-                      <span class="trait-tag">Confident</span>
-                      <span class="trait-tag">Disciplined</span>
-                      <span class="trait-tag">Kind</span>
-                      <span class="trait-tag">Curious</span>
-                      <span class="trait-tag">Responsible</span>
-                      <span class="trait-tag">Rooted in values</span>
+                  <div style="background: #f4eee1; border-radius: 6px; padding: 8px 10px; text-align: center; font-size: 0.7rem; color: var(--primary); font-weight: 600;">
+                    Strong Foundations • Lifelong Learners • Empathetic Citizens
+                  </div>
+                </div>
+              </div>
+
+              <!-- Outside Center: Back Cover -->
+              <div class="panel-face face-outside">
+                <div class="panel-inner panel-back-cover">
+                  <div>
+                    <div class="back-crest-wrap">
+                      <img src="../assets/logo-crest.png" alt="Aurelia Crest">
+                      <h3 class="back-school-title">AURELIA PUBLIC SCHOOL</h3>
+                      <p class="back-tagline">where learning meets character</p>
+                    </div>
+
+                    <div class="vision-mission-card">
+                      <h4>Our Vision</h4>
+                      <p>“To Nurture Excellence with Humanity.”</p>
+                    </div>
+
+                    <div class="vision-mission-card">
+                      <h4>Our Mission</h4>
+                      <p>“To Educate the Mind, Enrich the Heart, and Empower the Future.”</p>
+                    </div>
+
+                    <div class="vision-mission-card" style="border-color: #cbd5e1; background: #fafafa;">
+                      <h4>Our Promise</h4>
+                      <p style="font-size: 0.75rem; color: #4b5563;">
+                        Growing in Knowledge. Rooted in Values. Ready for Life.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="contact-cta">
+                    <h4>Admissions & Enquiries</h4>
+                    <p><strong>Edavannappara, Kerala</strong></p>
+                    <p style="font-size: 0.72rem; color: #cbd5e1;">Phone: [Contact Number]</p>
+                    <p style="font-size: 0.72rem; color: #cbd5e1;">Email: admissions@aureliapublicschool.org</p>
+                    <p style="font-size: 0.7rem; color: var(--accent); margin-top: 3px;">aureliapublicschool.org</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+
+            <!-- ==============================================
+                 RIGHT WING — INNER FLAP (Hinge at Z = +2.5px)
+                 Folds inward (-180deg) to sit parallel at Z = +5px
+                 Inside Face (+Z when open): Madrasa & Our Promise
+                 Outside Face (+Z when folded): A Beautiful Beginning
+                 ============================================== -->
+            <div class="panel-wing wing-right" id="wingRight">
+              <div class="wing-body">
+
+                <!-- Inside Right: Madrasa & Promise -->
+                <div class="panel-face face-inside">
+                  <div class="panel-inner panel-madrasa-promise">
+                    <div class="crease-overlay crease-from-left"></div>
+
+                    <div>
+                      <div class="madrasa-hero-card">
+                        <span class="madrasa-hero-tag">Integrated Convenience</span>
+                        <h4>Academic Education & Madrasa — Together</h4>
+                        <p>
+                          We understand the challenges parents face when arranging separate schedules and travel for school and Madrasa education.
+                        </p>
+                        <p style="font-size: 0.71rem; color: #ecfdf5;">
+                          Aurelia plans to provide a Madrasa facility within the school setting, coordinating school and Madrasa holidays wherever feasible.
+                        </p>
+                        <div class="madrasa-points">
+                          <div class="madrasa-pt">✨ Two educational pathways in one setting</div>
+                          <div class="madrasa-pt">✨ Coordinated school & Madrasa holidays</div>
+                          <div class="madrasa-pt">✨ Shared commitment to children’s growth</div>
+                        </div>
+                      </div>
+
+                      <div class="promise-strip">
+                        <h5>Our Promise for Tomorrow</h5>
+                        <p style="font-size: 0.71rem; color: var(--text-muted); margin-bottom: 6px;">
+                          More than education—a foundation for life. We aspire to nurture children who are:
+                        </p>
+                        <div class="traits-tags">
+                          <span class="trait-tag">Confident in abilities</span>
+                          <span class="trait-tag">Disciplined in habits</span>
+                          <span class="trait-tag">Kind in relationships</span>
+                          <span class="trait-tag">Curious in learning</span>
+                          <span class="trait-tag">Responsible in actions</span>
+                          <span class="trait-tag">Rooted in values</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="panel-footer-line" style="color: var(--accent-hover); font-weight: 600;">
+                      Ready for the Future • Grounded in Values
                     </div>
                   </div>
                 </div>
 
-                <div style="font-size: 0.72rem; color: var(--accent-hover); font-weight: 600; text-align: center; border-top: 1px solid #ebd5ad; padding-top: 10px; margin-top: 10px;">
-                  Ready for the Future • Grounded in Values
+                <!-- Outside Flap: A Beautiful Beginning (Revealed on 1st Unfold) -->
+                <div class="panel-face face-outside">
+                  <div class="panel-inner panel-flap-in">
+                    <div class="crease-overlay crease-from-right"></div>
+                    <div class="fold-depth-shade" id="shadeFlapOutside"></div>
+
+                    <div>
+                      <span class="section-eyebrow">A Beautiful Beginning</span>
+                      <h2 class="section-heading">Where Knowledge Meets Values, and Every Child Matters</h2>
+                      <p class="intro-p">
+                        We believe education is not merely about academic success; it is about nurturing character, building confidence and preparing children for life.
+                      </p>
+                      <div class="callout-box">
+                        <p>“At Aurelia, we aspire to create a joyful, disciplined and values-centred environment where every child discovers their potential and grows into a responsible, compassionate individual.”</p>
+                      </div>
+                      <ul class="check-list">
+                        <li class="check-item">
+                          <div class="check-icon">✓</div>
+                          <div class="check-text">
+                            <h5>Character First</h5>
+                            <p>Nurturing respect, humility, and good habits as a way of life.</p>
+                          </div>
+                        </li>
+                        <li class="check-item">
+                          <div class="check-icon">✓</div>
+                          <div class="check-text">
+                            <h5>Joyful & Disciplined</h5>
+                            <p>Calm, encouraging classrooms where every child matters.</p>
+                          </div>
+                        </li>
+                        <li class="check-item">
+                          <div class="check-icon">✓</div>
+                          <div class="check-text">
+                            <h5>Prepared for Life</h5>
+                            <p>Building confidence, curiosity, and moral responsibility.</p>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="panel-footer-line">
+                      Aurelia — Where Every Child Begins to Shine
+                    </div>
+                  </div>
                 </div>
+
               </div>
             </div>
 
-          </div>
 
+            <!-- ==============================================
+                 LEFT WING — FRONT COVER WING (Hinge at Z = +6px)
+                 Folds inward (+180deg) to sit parallel at Z = +12px
+                 Inside Face (+Z when open): Founder's Vision
+                 Outside Face (+Z when closed): Front Cover
+                 ============================================== -->
+            <div class="panel-wing wing-left" id="wingLeft">
+              <div class="wing-body">
 
-          <!-- ==============================================
-               LEFT WING (Hinged on Left edge of Center)
-               Closed rotation: folds under front cover
-               Unfolds: swings left -180deg
-               Outside face: Panel 5 (Inside Flap / Beautiful Beginning)
-               Inside face: Panel 2 (Founder's Vision)
-               ============================================== -->
-          <div class="panel-wing wing-left" id="wingLeft">
-            
-            <!-- Crease Shadow line -->
-            <div class="crease-shadow crease-right"></div>
-            <div class="fold-occlusion" id="occlusionLeft"></div>
+                <!-- Inside Left: Founder's Vision -->
+                <div class="panel-face face-inside">
+                  <div class="panel-inner panel-founder">
+                    <div class="crease-overlay crease-from-right"></div>
 
-            <!-- Outside Flap (Panel 5: A Beautiful Beginning) -->
-            <div class="panel-face face-front">
-              <div class="panel-inner panel-flap-in">
-                <span class="panel-tag">Inside Flap • P5</span>
-                <div>
-                  <span class="section-eyebrow">A Beautiful Beginning</span>
-                  <h2 class="section-heading">Where Knowledge Meets Values</h2>
-                  <p class="intro-p">
-                    We believe education is not merely about academic scores; it is about nurturing character, building confidence, and preparing children for life.
-                  </p>
-                  <div class="callout-box">
-                    <p>“At Aurelia, we aspire to create a joyful, disciplined, and values-centred environment where every child discovers their potential.”</p>
+                    <div>
+                      <span class="section-eyebrow">A Founder’s Vision</span>
+                      <h2 class="section-heading">A Dream Shaped by Experience, Inspired by the World</h2>
+
+                      <div class="stats-row">
+                        <div class="stat-pill"><strong>24 Yrs</strong> Educational Exp.</div>
+                        <div class="stat-pill"><strong>17 Yrs</strong> CBSE Principal</div>
+                        <div class="stat-pill"><strong>5 Yrs</strong> Gulf CBSE</div>
+                        <div class="stat-pill"><strong>2 Yrs</strong> British Curric.</div>
+                      </div>
+
+                      <div class="founder-quote">
+                        <div class="founder-quote-body">
+                          “I have developed a deep conviction that education must shape both the mind and the character. My visits to Japanese schools left a lasting impression—their discipline, calm classrooms, cleanliness, respect and warm hospitality inspired me to envision a school where good habits become a way of life.”
+                        </div>
+                        <div class="founder-sig">
+                          — Founder
+                          <span>Aurelia Public School</span>
+                        </div>
+                      </div>
+
+                      <div class="japan-badge">
+                        <div class="japan-badge-icon">🌸</div>
+                        <div class="japan-badge-text">
+                          My dream is to build a school where <strong>discipline becomes a habit</strong>, <strong>respect becomes a culture</strong>, and <strong>learning becomes a joy</strong>.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="panel-footer-line" style="font-style: italic; color: var(--primary);">
+                      “Aurelia is not just a school I dream of building; it is a culture I dream of nurturing.”
+                    </div>
                   </div>
-                  <ul class="check-list">
-                    <li class="check-item">
-                      <div class="check-icon">✓</div>
-                      <div class="check-text">
-                        <h5>Foundational Character</h5>
-                        <p>Respect, humility, and self-discipline from early childhood.</p>
-                      </div>
-                    </li>
-                    <li class="check-item">
-                      <div class="check-icon">✓</div>
-                      <div class="check-text">
-                        <h5>Individual Attention</h5>
-                        <p>Recognising uniqueness and personalized pacing.</p>
-                      </div>
-                    </li>
-                    <li class="check-item">
-                      <div class="check-icon">✓</div>
-                      <div class="check-text">
-                        <h5>Joyful Discovery</h5>
-                        <p>Calm spaces where curiosity is encouraged.</p>
-                      </div>
-                    </li>
-                  </ul>
                 </div>
-                <div style="margin-top: 16px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid #ebd5ad; padding-top: 10px; text-align: center;">
-                  Aurelia — Where Every Child Begins to Shine
+
+                <!-- Outside Left: Front Cover (Visible when Closed) -->
+                <div class="panel-face face-outside">
+                  <div class="panel-inner panel-front-cover">
+                    <div class="cover-top">
+                      <span class="cover-eyebrow">A Beautiful Beginning</span>
+                      <img src="../assets/logo-crest-white.png" alt="Aurelia Crest" class="cover-crest" onerror="this.src='../assets/logo-crest.png'">
+                      <h1 class="cover-school-name">
+                        AURELIA
+                        <span>PUBLIC SCHOOL</span>
+                      </h1>
+                      <div class="cover-tagline">“where learning meets character”</div>
+                    </div>
+
+                    <div class="cover-mid">
+                      <p class="cover-lead">
+                        Inspiring Minds. Shaping Character. Transforming Lives.
+                      </p>
+                    </div>
+
+                    <div class="cover-bottom">
+                      <div class="cover-shine">Where Every Child Begins to <strong>Shine</strong></div>
+                      <div class="cover-loc">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Edavannappara, Kerala
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
               </div>
             </div>
 
-            <!-- Inside Left (Panel 2: Founder's Vision) -->
-            <div class="panel-face face-back">
-              <div class="panel-inner panel-founder">
-                <span class="panel-tag">Founder's Vision • P2</span>
-                <div>
-                  <span class="section-eyebrow">A Dream Shaped by Experience</span>
-                  <h2 class="section-heading">Inspired by the World</h2>
+          </div> <!-- /brochure-assembly -->
 
-                  <div class="stats-row">
-                    <div class="stat-pill"><strong>24 Yrs</strong> Total Exp.</div>
-                    <div class="stat-pill"><strong>17 Yrs</strong> CBSE Principal</div>
-                    <div class="stat-pill"><strong>5 Yrs</strong> Gulf CBSE</div>
-                    <div class="stat-pill"><strong>2 Yrs</strong> British Curric.</div>
-                  </div>
+        </div> <!-- /orbit-rig -->
 
-                  <div class="founder-quote">
-                    <div class="founder-quote-body">
-                      “With 24 years in education, my visits to Japanese schools left an enduring impression—their discipline, calm classrooms, cleanliness, and warm hospitality inspired me to build a school where good habits become a way of life.”
-                    </div>
-                    <div class="founder-sig">
-                      — Founder
-                      <span>Aurelia Public School</span>
-                    </div>
-                  </div>
+      </div> <!-- /wobble-rig -->
 
-                  <div class="japan-badge">
-                    <div class="japan-badge-icon">🌸</div>
-                    <div class="japan-badge-text">
-                      <strong>Japanese Habit Culture:</strong> Mindful hygiene, respectful interactions, and calm spaces blended with our moral heritage.
-                    </div>
-                  </div>
-                </div>
-
-                <div style="font-size: 0.72rem; font-style: italic; color: var(--primary); text-align: center; border-top: 1px solid #ebd5ad; padding-top: 10px; margin-top: 12px;">
-                  “Aurelia is a culture I dream of nurturing.”
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div> <!-- /brochure-assembly -->
-
-      </div> <!-- /orbit-rig -->
-
-    </div> <!-- /wobble-rig -->
+    </div> <!-- /pan-rig -->
 
   </div> <!-- /scene-viewport -->
 
-  <!-- Bottom Interactive Gesture Guide Pill -->
-  <div class="gesture-hint">
-    <div class="hint-item">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-      <span><strong>Tap:</strong> <span id="hintAction">Unfold Cover</span></span>
-    </div>
-    <div class="hint-divider"></div>
-    <div class="hint-item">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-      <span><strong>Double-Tap:</strong> Flip Side</span>
-    </div>
-    <div class="hint-divider"></div>
-    <div class="hint-item">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>
-      <span><strong>Drag:</strong> 3D Rotate</span>
-    </div>
-    <button class="btn-quick-toggle" onclick="cycleFoldState(event)">Cycle Fold</button>
-  </div>
-
   <script>
-    // ==========================================
-    // BROCHURE STATE MACHINE
+    // =========================================================================
+    // PHYSICAL TRI-FOLD STATE & TRANSFORM ENGINE
+    //
     // Fold States:
-    // 0: Closed (Front cover facing user, slightly tilted wobbly)
-    // 1: Step 1 Unfold (Front cover swings open to the right)
-    // 2: Step 2 Fully Unfolded (Left flap swings open, full 3-panel spread)
-    // ==========================================
-    let foldStep = 0; // 0: Closed, 1: Half-Open, 2: Fully Unfolded
-    let isFlipped = false; // false: Facing front cover/outside, true: 180deg flip to inside
+    //   0: Closed (Front Cover facing viewer; Left Wing @ +180deg, Right Wing @ -180deg)
+    //   1: First Unfold (Front Cover opens left; Left Wing @ +10deg, Right Wing @ -180deg)
+    //   2: Full Unfold (Inner Flap opens right; Left Wing @ +8deg, Right Wing @ -8deg)
+    // =========================================================================
+    const PANEL_W = 310;
+    const PANEL_H = 640;
 
-    // 3D Orbital Rotation (User Dragging)
-    let rotX = -8;      // Initial gentle slanted tilt
-    let rotY = 16;      // Initial isometric angle showing depth
-    let targetRotX = rotX;
-    let targetRotY = rotY;
+    let foldStep = 0;       // 0, 1, 2
+    let isFlipped = false;  // false = Front/Inside, true = Back/Outside (180deg Y flip)
 
-    // Elements
-    const orbitRig = document.getElementById('orbitRig');
+    // Screen-space Pan & Zoom (so user can move the brochure anywhere to read off-screen parts)
+    let panX = 0;
+    let panY = 0;
+    let userZoom = 1;
+    let baseFitScale = 1;
+
+    // 3D Slant & Rotation around Center of Gravity
+    let rotX = 7;
+    let rotY = -12;
+    let rotZ = -1.5;
+
+    // DOM References
+    const viewport = document.getElementById('sceneViewport');
+    const panRig = document.getElementById('panRig');
     const wobbleRig = document.getElementById('wobbleRig');
-    const wingRight = document.getElementById('wingRight');
+    const orbitRig = document.getElementById('orbitRig');
+    const assembly = document.getElementById('brochureAssembly');
     const wingLeft = document.getElementById('wingLeft');
+    const wingRight = document.getElementById('wingRight');
     const floorShadow = document.getElementById('floorShadow');
-    const stateBadge = document.getElementById('stateBadge');
-    const hintAction = document.getElementById('hintAction');
-    const occlusionRight = document.getElementById('occlusionRight');
-    const occlusionLeft = document.getElementById('occlusionLeft');
+    const shadeFlapOutside = document.getElementById('shadeFlapOutside');
+    const shadeCenterInside = document.getElementById('shadeCenterInside');
 
-    // Update 3D Visuals based on fold state
-    function updateBrochureState(animate = true) {
-      const transitionDuration = animate ? '0.95s' : '0s';
-      wingRight.style.transition = `transform ${transitionDuration} cubic-bezier(0.25, 1, 0.3, 1)`;
-      wingLeft.style.transition = `transform ${transitionDuration} cubic-bezier(0.25, 1, 0.3, 1)`;
+    // Calculate responsive base scale so the brochure is readable and fits nicely
+    function computeResponsiveScale() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const heightFit = (vh * 0.84) / PANEL_H;
 
       if (foldStep === 0) {
-        // STATE 0: CLOSED
-        // Right wing (Front cover) is folded tightly over center (-178deg)
-        // Left wing (Inside flap) is tucked underneath (175deg)
-        wingRight.style.transform = 'rotateY(-177.5deg)';
-        wingLeft.style.transform = 'rotateY(175deg)';
-        
-        // Depth Occlusion & Shadows
-        occlusionLeft.style.opacity = '0.55';
-        occlusionRight.style.opacity = '0.05';
-        floorShadow.style.width = '420px';
-        floorShadow.style.opacity = '0.8';
+        const widthFit = (vw * 0.82) / PANEL_W;
+        baseFitScale = Math.min(1.05, heightFit, widthFit);
+      } else if (foldStep === 1) {
+        // 2 panels wide: keep large enough to read comfortably, allow panning if needed
+        const widthFit = (vw * 0.90) / (PANEL_W * 1.45);
+        baseFitScale = Math.min(1.0, heightFit, widthFit);
+      } else {
+        // 3 panels wide: keep readable scale and allow smooth horizontal dragging across panels
+        const widthFit = (vw * 0.92) / (PANEL_W * 1.55);
+        baseFitScale = Math.min(0.96, heightFit, widthFit);
+      }
+    }
 
-        stateBadge.textContent = isFlipped ? 'Closed (Back Facing)' : 'Closed (Front Cover)';
-        hintAction.textContent = 'Tap to Unfold Cover';
+    function applyTransforms() {
+      const scale = Math.max(0.38, Math.min(2.2, baseFitScale * userZoom));
+      panRig.style.transform = `translate3d(${panX}px, ${panY}px, 0px) scale(${scale})`;
 
-        // Add subtle tilt when closed
-        if (!isUserInteracting) {
-          targetRotX = -6;
-          targetRotY = isFlipped ? 195 : 15;
+      const flipAngle = isFlipped ? 180 : 0;
+      const effectiveRotZ = isFlipped ? -rotZ : rotZ;
+      orbitRig.style.transform = `rotateX(${rotX}deg) rotateY(${rotY + flipAngle}deg) rotateZ(${effectiveRotZ}deg)`;
+    }
+
+    function updateBrochureState(animate = true, previousStep = 0) {
+      computeResponsiveScale();
+
+      if (!animate) {
+        wingLeft.style.transition = 'none';
+        wingRight.style.transition = 'none';
+      } else {
+        // Sequence delays so closing never collides and opening feels organic
+        if (foldStep === 0 && previousStep === 2) {
+          // Closing from full spread: tuck Right Wing first, then close Left Wing over it
+          wingRight.style.transition = 'transform 0.85s cubic-bezier(0.24, 1, 0.32, 1) 0s';
+          wingLeft.style.transition = 'transform 0.9s cubic-bezier(0.24, 1, 0.32, 1) 0.14s';
+        } else {
+          wingLeft.style.transition = 'transform 0.95s cubic-bezier(0.24, 1, 0.32, 1) 0s';
+          wingRight.style.transition = 'transform 0.95s cubic-bezier(0.24, 1, 0.32, 1) 0s';
         }
+      }
+
+      if (foldStep === 0) {
+        // CLOSED:
+        // Right wing folded at -180deg (Z = +5px)
+        // Left wing folded over it at +180deg (Z = +12px)
+        wingLeft.style.transform = 'translateZ(6px) rotateY(180deg)';
+        wingRight.style.transform = 'translateZ(2.5px) rotateY(-180deg)';
+
+        // Center of Gravity of 1-panel stack is (0, 0, -6px)
+        assembly.style.transform = 'translate3d(0px, 0px, -6px)';
+
+        // Lighting & occlusion between folds
+        shadeFlapOutside.style.opacity = '0.5';
+        shadeCenterInside.style.opacity = '0.6';
+        floorShadow.style.width = '340px';
+        floorShadow.style.opacity = '0.82';
+
+        // Reset pan to center when closed, with slight slanted 3D pose
+        panX = 0;
+        panY = 0;
+        rotX = 7;
+        rotY = -12;
+        rotZ = -1.5;
 
       } else if (foldStep === 1) {
-        // STATE 1: HALF-OPEN (First unfold)
-        // Right wing opened out flat (0deg) or slightly angled (15deg)
-        // Left wing still folded inside (165deg)
-        wingRight.style.transform = 'rotateY(-15deg)';
-        wingLeft.style.transform = 'rotateY(165deg)';
+        // STEP 1 UNFOLD:
+        // Left wing (Front Cover) unfolds open to the left (+12deg natural crease)
+        // Right wing (Inner Flap) remains folded over Center (-180deg)
+        wingLeft.style.transform = 'translateZ(6px) rotateY(12deg)';
+        wingRight.style.transform = 'translateZ(2.5px) rotateY(-180deg)';
 
-        occlusionLeft.style.opacity = '0.4';
-        occlusionRight.style.opacity = '0';
-        floorShadow.style.width = '620px';
-        floorShadow.style.opacity = '0.7';
+        // CoG of the 2-panel spread [-1.5W, +0.5W] is at -0.5W -> shift assembly +0.5W!
+        assembly.style.transform = `translate3d(${PANEL_W * 0.5}px, 0px, -2px)`;
 
-        stateBadge.textContent = 'Partially Unfolded (2 Panels)';
-        hintAction.textContent = 'Tap to Unfold Inner Flap';
+        shadeFlapOutside.style.opacity = '0';
+        shadeCenterInside.style.opacity = '0.5';
+        floorShadow.style.width = '640px';
+        floorShadow.style.opacity = '0.72';
+
+        // Gently level out slant for easy reading
+        panX = 0;
+        panY = 0;
+        rotX = 4;
+        rotY = -5;
+        rotZ = -0.5;
 
       } else if (foldStep === 2) {
-        // STATE 2: FULLY UNFOLDED (Full Spread)
-        // Both wings flat open with a subtle natural paper flex (5-8 deg)
-        wingRight.style.transform = 'rotateY(4deg)';
-        wingLeft.style.transform = 'rotateY(-4deg)';
+        // STEP 2 FULL UNFOLD:
+        // Both wings open with a subtle natural paper crease (+8deg and -8deg)
+        wingLeft.style.transform = 'translateZ(6px) rotateY(8deg)';
+        wingRight.style.transform = 'translateZ(2.5px) rotateY(-8deg)';
 
-        occlusionLeft.style.opacity = '0';
-        occlusionRight.style.opacity = '0';
-        floorShadow.style.width = '920px';
-        floorShadow.style.opacity = '0.6';
+        // CoG of the 3-panel spread [-1.5W, +1.5W] is at 0
+        assembly.style.transform = 'translate3d(0px, 0px, 0px)';
 
-        stateBadge.textContent = isFlipped ? 'Full Inside Spread' : 'Full Outside Spread';
-        hintAction.textContent = 'Tap to Fold Back';
+        shadeFlapOutside.style.opacity = '0';
+        shadeCenterInside.style.opacity = '0';
+        floorShadow.style.width = '940px';
+        floorShadow.style.opacity = '0.65';
 
-        if (!isUserInteracting) {
-          targetRotX = -3;
-          targetRotY = isFlipped ? 180 : 0;
-        }
+        panX = 0;
+        panY = 0;
+        rotX = 2;
+        rotY = 0;
+        rotZ = 0;
       }
 
-      applyOrbitTransform();
+      applyTransforms();
     }
 
-    function applyOrbitTransform() {
-      const baseFlip = isFlipped ? 180 : 0;
-      orbitRig.style.transform = `rotateX(${rotX}deg) rotateY(${rotY + baseFlip}deg)`;
-    }
-
-    // Cycle fold progression on tap
-    function cycleFoldState(e) {
-      if (e) e.stopPropagation();
+    function advanceFold() {
+      const prev = foldStep;
       foldStep = (foldStep + 1) % 3;
-      updateBrochureState(true);
+      updateBrochureState(true, prev);
     }
 
-    // Flip to opposite side (Double Tap / Double Click)
     function flipBrochure() {
       isFlipped = !isFlipped;
-      updateBrochureState(true);
+      applyTransforms();
     }
 
-    // ==========================================
-    // INTERACTION HANDLING: TAP, DOUBLE TAP, DRAG & TOUCH
-    // ==========================================
-    const viewport = document.getElementById('sceneViewport');
-    let isPointerDown = false;
+    // =========================================================================
+    // UNIFIED GESTURE ENGINE:
+    // - Single Tap: Unfold / Fold progression
+    // - Double Tap: Flip 180° keeping Center of Gravity unmoved
+    // - 1-Finger Drag / Mouse Drag: Move (Pan) the brochure around on screen
+    //   with natural 3D tilt so off-screen panels can be slid right into view
+    // - 2-Finger Pinch & Twist: Zoom in/out + Rotate around Center of Gravity
+    // =========================================================================
+    const activePointers = new Map();
     let isDragging = false;
-    let startX = 0, startY = 0;
-    let lastX = 0, lastY = 0;
-    let dragDistance = 0;
-    let isUserInteracting = false;
-    let lastTapTime = 0;
-    let touchDistanceStart = 0;
+    let totalMovement = 0;
+    let lastTapTimestamp = 0;
+    let singleTapTimer = null;
+
+    // Multi-touch pinch/rotate tracking
+    let initialPinchDist = 0;
+    let initialPinchAngle = 0;
+    let initialZoom = 1;
+    let initialRotZ = 0;
+    let initialRotY = 0;
+    let initialMidX = 0;
+
+    function getTwoPointerMetrics() {
+      const pts = Array.from(activePointers.values());
+      const dx = pts[1].x - pts[0].x;
+      const dy = pts[1].y - pts[0].y;
+      return {
+        dist: Math.hypot(dx, dy),
+        angle: Math.atan2(dy, dx) * (180 / Math.PI),
+        midX: (pts[0].x + pts[1].x) / 2,
+        midY: (pts[0].y + pts[1].y) / 2
+      };
+    }
 
     viewport.addEventListener('pointerdown', (e) => {
-      // Ignore if clicking on bottom pill buttons
-      if (e.target.closest('.gesture-hint')) return;
+      viewport.setPointerCapture(e.pointerId);
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-      isPointerDown = true;
-      isDragging = false;
-      dragDistance = 0;
-      isUserInteracting = true;
-      startX = lastX = e.clientX;
-      startY = lastY = e.clientY;
-      wobbleRig.style.animationPlayState = 'paused';
-    });
-
-    window.addEventListener('pointermove', (e) => {
-      if (!isPointerDown) return;
-
-      const deltaX = e.clientX - lastX;
-      const deltaY = e.clientY - lastY;
-      lastX = e.clientX;
-      lastY = e.clientY;
-
-      dragDistance += Math.abs(deltaX) + Math.abs(deltaY);
-
-      if (dragDistance > 6) {
+      if (activePointers.size === 1) {
+        isDragging = false;
+        totalMovement = 0;
+      } else if (activePointers.size === 2) {
+        // Initialize 2-finger pinch + rotate around Center of Gravity
         isDragging = true;
-        // Orbit rotation calculation
-        rotY += deltaX * 0.45;
-        rotX = Math.max(-55, Math.min(55, rotX - deltaY * 0.45));
-        applyOrbitTransform();
+        if (singleTapTimer) {
+          clearTimeout(singleTapTimer);
+          singleTapTimer = null;
+        }
+        const m = getTwoPointerMetrics();
+        initialPinchDist = m.dist;
+        initialPinchAngle = m.angle;
+        initialMidX = m.midX;
+        initialZoom = userZoom;
+        initialRotZ = rotZ;
+        initialRotY = rotY;
       }
     });
 
-    window.addEventListener('pointerup', (e) => {
-      if (!isPointerDown) return;
-      isPointerDown = false;
-      wobbleRig.style.animationPlayState = 'running';
+    viewport.addEventListener('pointermove', (e) => {
+      if (!activePointers.has(e.pointerId)) return;
+      const prev = activePointers.get(e.pointerId);
+      const dx = e.clientX - prev.x;
+      const dy = e.clientY - prev.y;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-      // If it wasn't a drag, handle single tap vs double tap
-      if (!isDragging && dragDistance <= 6) {
-        const currentTime = new Date().getTime();
-        const tapInterval = currentTime - lastTapTime;
+      if (activePointers.size === 1 && !isDragging && Math.hypot(dx, dy) < 2) {
+        return;
+      }
 
-        if (tapInterval < 320 && tapInterval > 0) {
-          // Double Tap Detected -> Flip Page
-          flipBrochure();
-          lastTapTime = 0;
-        } else {
-          // Single Tap Detected -> Unfold / Progress fold state
-          lastTapTime = currentTime;
-          setTimeout(() => {
-            if (new Date().getTime() - lastTapTime >= 300 && lastTapTime !== 0) {
-              cycleFoldState();
-              lastTapTime = 0;
+      totalMovement += Math.hypot(dx, dy);
+
+      if (activePointers.size === 1) {
+        if (totalMovement > 7) {
+          isDragging = true;
+          panRig.classList.add('dragging');
+          orbitRig.classList.add('dragging');
+
+          if (e.shiftKey || e.buttons === 2) {
+            // Shift+Drag or Right-Click Drag rotates in 3D
+            rotY += dx * 0.4;
+            rotX = Math.max(-55, Math.min(55, rotX - dy * 0.4));
+          } else {
+            // Move (pan) the brochure smoothly across the screen to read any panel
+            panX += dx;
+            panY += dy;
+
+            // Clamp pan within generous bounds based on current spread width
+            const spreadHalfW = (foldStep === 0 ? PANEL_W * 0.6 : foldStep === 1 ? PANEL_W * 1.2 : PANEL_W * 1.6) * baseFitScale * userZoom;
+            const spreadHalfH = PANEL_H * 0.65 * baseFitScale * userZoom;
+            panX = Math.max(-spreadHalfW, Math.min(spreadHalfW, panX));
+            panY = Math.max(-spreadHalfH, Math.min(spreadHalfH, panY));
+
+            // Subtle natural 3D perspective banking while moving the paper
+            rotY = Math.max(-35, Math.min(35, rotY + dx * 0.06));
+            rotX = Math.max(-30, Math.min(30, rotX - dy * 0.06));
+          }
+
+          applyTransforms();
+        }
+      } else if (activePointers.size === 2 && initialPinchDist > 0) {
+        panRig.classList.add('dragging');
+        orbitRig.classList.add('dragging');
+
+        const m = getTwoPointerMetrics();
+        // 1. Pinch Zoom
+        const scaleRatio = m.dist / initialPinchDist;
+        userZoom = Math.max(0.55, Math.min(2.2, initialZoom * scaleRatio));
+
+        // 2. Two-finger Rotate around Center of Gravity (in-plane twist + 3D Y turn)
+        let angleDelta = m.angle - initialPinchAngle;
+        if (angleDelta > 180) angleDelta -= 360;
+        if (angleDelta < -180) angleDelta += 360;
+
+        rotZ = Math.max(-45, Math.min(45, initialRotZ + angleDelta * 0.75));
+        rotY = initialRotY + (m.midX - initialMidX) * 0.35;
+
+        applyTransforms();
+      }
+    });
+
+    function handlePointerEnd(e) {
+      if (!activePointers.has(e.pointerId)) return;
+      activePointers.delete(e.pointerId);
+
+      if (activePointers.size === 0) {
+        panRig.classList.remove('dragging');
+        orbitRig.classList.remove('dragging');
+
+        // Detect clean Tap vs Double-Tap (when user didn't drag)
+        if (!isDragging && totalMovement <= 7) {
+          const now = performance.now();
+          const delta = now - lastTapTimestamp;
+
+          if (delta > 0 && delta < 300) {
+            // Double Tap -> Flip brochure 180° around Center of Gravity
+            if (singleTapTimer) {
+              clearTimeout(singleTapTimer);
+              singleTapTimer = null;
             }
-          }, 310);
+            flipBrochure();
+            lastTapTimestamp = 0;
+          } else {
+            // Single Tap -> Unfold / Fold progression
+            lastTapTimestamp = now;
+            singleTapTimer = setTimeout(() => {
+              advanceFold();
+              singleTapTimer = null;
+              lastTapTimestamp = 0;
+            }, 290);
+          }
         }
+      } else if (activePointers.size === 1) {
+        // Prevent jump after lifting one finger from a 2-finger gesture
+        isDragging = true;
       }
+    }
 
-      // Allow inertia easing back to gentle pose after idle
-      setTimeout(() => {
-        isUserInteracting = false;
-      }, 3000);
+    viewport.addEventListener('pointerup', handlePointerEnd);
+    viewport.addEventListener('pointercancel', handlePointerEnd);
+    viewport.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Mouse wheel / trackpad zoom & horizontal scroll support
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.ctrlKey || Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        const zoomFactor = 1 - e.deltaY * 0.0015;
+        userZoom = Math.max(0.55, Math.min(2.2, userZoom * zoomFactor));
+      } else {
+        panX -= e.deltaX;
+      }
+      applyTransforms();
+    }, { passive: false });
+
+    window.addEventListener('resize', () => {
+      computeResponsiveScale();
+      applyTransforms();
     });
 
-    // Touch Pinch-to-Rotate / Zoom support on mobile
-    window.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2) {
-        touchDistanceStart = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-      }
-    }, { passive: true });
-
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 2 && touchDistanceStart > 0) {
-        const currentDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        const diff = currentDist - touchDistanceStart;
-        if (Math.abs(diff) > 50) {
-          // Double pinch threshold triggers flip
-          flipBrochure();
-          touchDistanceStart = currentDist;
-        }
-      }
-    }, { passive: true });
-
-    // Keyboard controls for desktop
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.key === 'Enter') {
-        cycleFoldState();
-      } else if (e.key === 'f' || e.key === 'F') {
-        flipBrochure();
-      } else if (e.key === 'ArrowRight') {
-        rotY += 15;
-        applyOrbitTransform();
-      } else if (e.key === 'ArrowLeft') {
-        rotY -= 15;
-        applyOrbitTransform();
-      } else if (e.key === '0') {
-        foldStep = 0;
-        updateBrochureState(true);
-      } else if (e.key === '1') {
-        foldStep = 1;
-        updateBrochureState(true);
-      } else if (e.key === '2') {
-        foldStep = 2;
-        updateBrochureState(true);
-      }
-    });
-
-    // Initial load presentation
-    updateBrochureState(false);
+    // Initialize in folded wobbly state
+    updateBrochureState(false, 0);
   </script>
 </body>
 </html>
