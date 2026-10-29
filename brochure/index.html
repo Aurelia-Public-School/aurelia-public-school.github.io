@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="format-detection" content="telephone=no">
-  <title>Aurelia Public School | Brochure</title>
+  <title>Aurelia Public School | Brochure v2</title>
   <meta name="description" content="Interactive 3-Fold Brochure for Aurelia Public School, Edavannappara, Kerala.">
   <link rel="icon" type="image/png" href="../assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -787,6 +787,73 @@
       margin-bottom: 3px;
     }
 
+    
+    /* =========================================================
+       VERSION SELECTOR (Top Left)
+       ========================================================= */
+    .version-selector {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(13, 52, 39, 0.85);
+      border: 1px solid rgba(201, 151, 62, 0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 3px;
+      border-radius: 999px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      gap: 2px;
+    }
+
+    .version-link {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      color: var(--accent-light);
+      transition: all 0.2s ease;
+    }
+
+    .version-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .version-link.active {
+      background: var(--accent);
+      color: #072018;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Campus Photo Card in Panel 5 (A Beautiful Beginning) */
+    .campus-photo-card {
+      width: 100%;
+      height: 125px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 10px 0 12px;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(13, 52, 39, 0.12), inset 0 0 0 1px rgba(201, 151, 62, 0.25);
+    }
+
+    .campus-photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 38%;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .campus-photo-card:hover img {
+      transform: scale(1.03);
+    }
+
     /* =========================================================
        STANDALONE FLIP BUTTON (Bottom Right)
        ========================================================= */
@@ -834,6 +901,12 @@
   </style>
 </head>
 <body>
+
+  <!-- Version Selector (Easy Switching) -->
+  <nav class="version-selector" aria-label="Brochure Versions">
+    <a href="v1.html" class="version-link">v1</a>
+    <a href="index.html" class="version-link active">v2</a>
+  </nav>
 
   <!-- Interactive 3D Scene -->
   <div class="scene-viewport" id="sceneViewport">
@@ -1006,12 +1079,18 @@
 
                     <div>
                       <span class="section-eyebrow">A Beautiful Beginning</span>
-                      <h2 class="section-heading">Where Knowledge Meets Values, and Every Child Matters</h2>
-                      <p class="intro-p">
-                        We believe education is not merely about academic success; it is about nurturing character, building confidence and preparing children for life.
+                      <h2 class="section-heading">Where Knowledge Meets Values</h2>
+                      <p class="intro-p" style="margin-bottom: 8px;">
+                        Education is not merely about academic success; it is about nurturing character, building confidence and preparing children for life.
                       </p>
-                      <div class="callout-box">
-                        <p>“At Aurelia, we aspire to create a joyful, disciplined and values-centred environment where every child discovers their potential and grows into a responsible, compassionate individual.”</p>
+
+                      <!-- Campus Architecture Visual -->
+                      <div class="campus-photo-card">
+                        <img src="../assets/campus-building.jpg" alt="Aurelia Campus" loading="lazy">
+                      </div>
+
+                      <div class="callout-box" style="margin-bottom: 11px; padding: 8px 11px;">
+                        <p style="font-size: 0.77rem; line-height: 1.45;">“A joyful, disciplined and values-centred environment where every child discovers their potential.”</p>
                       </div>
                       <ul class="check-list">
                         <li class="check-item">
